@@ -11,7 +11,7 @@ type Options = {
   commitMessage?: string
 }
 
-export default async function(params: Options): Promise<void> {
+export default async function(params: Options): Promise<string> {
   const baseRepo = {
     owner: params.owner,
     repo: params.repo,
@@ -81,7 +81,7 @@ export default async function(params: Options): Promise<void> {
   })
 
   if (headBranch == baseBranch) {
-    console.log(commitRes.data.commit.html_url)
+    return commitRes.data.commit.html_url
   } else {
     const parts = commitMessage.split('\n\n')
     const title = parts[0]
@@ -94,6 +94,6 @@ export default async function(params: Options): Promise<void> {
       title,
       body,
     })
-    console.log(prRes.data.html_url)
+    return prRes.data.html_url
   }
 }

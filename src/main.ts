@@ -43,7 +43,7 @@ const run = async (): Promise<void> => {
 
 Created by https://github.com/mislav/bump-homebrew-formula-action`
 
-  await editGitHubBlob({
+  const createdUrl = await editGitHubBlob({
     apiClient: api(externalToken),
     owner,
     repo,
@@ -54,6 +54,7 @@ Created by https://github.com/mislav/bump-homebrew-formula-action`
       return replaceFormulaFields(oldContent, replacements)
     },
   })
+  console.log(createdUrl)
 }
 
 run().catch(error => {
