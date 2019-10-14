@@ -3,7 +3,7 @@ description: "Bump Homebrew formula after a new release"
 author: "@mislav"
 runs:
   using: node12
-  main: "./lib/main.js"
+  main: "./lib/index.js"
 inputs:
   homebrew-tap:
     description: The repository where the formula should be updated
