@@ -10,3 +10,6 @@ inputs:
     default: Homebrew/homebrew-core
   formula-name:
     description: The name of the Homebrew formula
+branding:
+  icon: box
+  color: orange
