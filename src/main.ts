@@ -27,12 +27,17 @@ const run = async (): Promise<void> => {
     await calculateDownloadChecksum(apiClient, downloadUrl, 'sha256')
   )
 
+  const commitMessage = `${formulaName} ${tagName}
+
+Created by https://github.com/mislav/bump-homebrew-formula-action`
+
   await editGitHubBlob({
     apiClient,
     owner,
     repo,
     branch,
     filePath,
+    commitMessage,
     replace(oldContent) {
       return replaceFormulaFields(oldContent, replacements)
     },
