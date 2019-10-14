@@ -1,20 +1,20 @@
 An action that bumps a Homebrew formula after a new release.
 
 ```yml
-name: Bump Homebrew
 on:
   push:
     tags: 'v*'
 
 jobs:
-  build:
-    name: Bump Homebrew formula
+  homebrew:
+    name: Bump Homebrew
     runs-on: ubuntu-latest
     steps:
       - uses: mislav/bump-homebrew-formula-action@v1
         with:
           formula-name: hub
           # homebrew-tap: Homebrew/homebrew-core
+          # download-url: ${{ format('https://github.com/{0}/archive/{2}.tar.gz', github.repository, github.ref) }}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
 ```
