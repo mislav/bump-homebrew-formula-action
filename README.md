@@ -14,6 +14,7 @@ jobs:
         with:
           formula-name: hub
           # homebrew-tap: Homebrew/homebrew-core
+          # base-branch: master
           # download-url: ${{ format('https://github.com/{0}/archive/{2}.tar.gz', github.repository, github.ref) }}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}

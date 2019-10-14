@@ -15,6 +15,7 @@ const run = async (): Promise<void> => {
 
   const [owner, repo] = getInput('homebrew-tap', { required: true }).split('/')
   const formulaName = getInput('formula-name', { required: true })
+  const branch = getInput('base-branch')
   const filePath = `Formula/${formulaName}.rb`
   const tagName = context.ref.replace('refs/tags/', '')
   const downloadUrl = getInput('download-url') || tarballForRelease(tagName)
@@ -30,6 +31,7 @@ const run = async (): Promise<void> => {
     apiClient,
     owner,
     repo,
+    branch,
     filePath,
     replace(oldContent) {
       return replaceFormulaFields(oldContent, replacements)
