@@ -1,4 +1,5 @@
 import { GitHub } from '@actions/github'
+import { debug } from '@actions/core'
 import { URL } from 'url'
 import { createHash } from 'crypto'
 import { get } from 'https'
@@ -8,14 +9,14 @@ interface Headers {
 }
 
 function stream(
-  url: URL | string,
+  url: URL,
   headers: Headers,
   cb: (chunk: Buffer) => void
 ): Promise<void> {
   return new Promise((resolve, reject): void => {
     get(url, { headers }, res => {
       if (res.statusCode && res.statusCode > 300) {
-        throw new Error(`HTTP ${res.statusCode}: ${url}`)
+        throw new Error(`HTTP ${res.statusCode}`)
       }
       res.on('data', d => cb(d))
       res.on('end', () => resolve())
@@ -69,6 +70,12 @@ async function resolveDownload(api: GitHub, url: URL): Promise<URL> {
   return url
 }
 
+function log(url: URL): void {
+  const params = Array.from(url.searchParams.keys())
+  const q = params.length > 0 ? `?${params.join(',')}` : ''
+  debug(`GET ${url.protocol}//${url.hostname}${url.pathname}${q}`)
+}
+
 export default async function(
   api: GitHub,
   url: string,
@@ -77,6 +84,7 @@ export default async function(
   const downloadUrl = await resolveDownload(api, new URL(url))
   const requestHeaders = { accept: 'application/octet-stream' }
   const hash = createHash(algorithm)
+  log(downloadUrl)
   await stream(downloadUrl, requestHeaders, chunk => hash.update(chunk))
   return hash.digest('hex')
 }

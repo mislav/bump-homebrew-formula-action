@@ -11,7 +11,7 @@ type Options = {
   commitMessage?: string
 }
 
-export default async function(params: Options): Promise<void> {
+export default async function(params: Options): Promise<string> {
   const baseRepo = {
     owner: params.owner,
     repo: params.repo,
@@ -71,7 +71,7 @@ export default async function(params: Options): Promise<void> {
   const commitMessage = params.commitMessage
     ? params.commitMessage
     : `Update ${filePath}`
-  await api.repos.createOrUpdateFile({
+  const commitRes = await api.repos.createOrUpdateFile({
     ...headRepo,
     path: filePath,
     message: commitMessage,
@@ -80,17 +80,20 @@ export default async function(params: Options): Promise<void> {
     branch: headBranch,
   })
 
-  if (headBranch != baseBranch) {
+  if (headBranch == baseBranch) {
+    return commitRes.data.commit.html_url
+  } else {
     const parts = commitMessage.split('\n\n')
     const title = parts[0]
     const body = parts.slice(1).join('\n\n')
 
-    await api.pulls.create({
+    const prRes = await api.pulls.create({
       ...baseRepo,
       base: baseBranch,
       head: `${headRepo.owner}:${headBranch}`,
       title,
       body,
     })
+    return prRes.data.html_url
   }
 }

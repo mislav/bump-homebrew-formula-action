@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf lib && ncc build -s src/main.ts -o lib",
     "lint": "eslint --ext '.js,.ts' ."
   },
   "dependencies": {
@@ -12,6 +12,7 @@
     "@types/node": "^12.7.5",
     "@typescript-eslint/eslint-plugin": "^2.2.0",
     "@typescript-eslint/parser": "^2.2.0",
+    "@zeit/ncc": "^0.20.5",
     "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-prettier": "^3.1.0",
