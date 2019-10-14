@@ -12,6 +12,12 @@
     "camelcase": "off",
     "@typescript-eslint/camelcase": ["error", { "properties": "never" }]
   },
+  "overrides": [{
+    "files": "**/*.js",
+    "rules": {
+      "@typescript-eslint/explicit-function-return-type": "off"
+    }
+  }],
   "env": {
     "node": true,
     "es6": true
