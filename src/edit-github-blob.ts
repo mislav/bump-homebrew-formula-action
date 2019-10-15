@@ -1,6 +1,25 @@
 import { GitHub } from '@actions/github'
 import { basename } from 'path'
 
+async function retry<T>(
+  times: number,
+  delay: number,
+  fn: () => Promise<T>
+): Promise<T> {
+  try {
+    return await fn()
+  } catch (err) {
+    if (times > 0) {
+      return new Promise((resolve): void => {
+        setTimeout(() => {
+          resolve(retry(times - 1, delay, fn))
+        }, delay)
+      })
+    }
+    throw err
+  }
+}
+
 type Options = {
   owner: string
   repo: string
@@ -28,7 +47,8 @@ export default async function(params: Options): Promise<string> {
     branch: baseBranch,
   })
 
-  if (!repoRes.data.permissions.push) {
+  const needsFork = !repoRes.data.permissions.push
+  if (needsFork) {
     const forkRes = await api.repos.createFork(baseRepo)
     headRepo = {
       owner: forkRes.data.owner.login,
@@ -36,17 +56,19 @@ export default async function(params: Options): Promise<string> {
     }
   }
 
-  if (headRepo != baseRepo || branchRes.data.protected) {
+  const needsPr = needsFork || branchRes.data.protected
+  if (needsPr) {
     const timestamp = Math.round(Date.now() / 1000)
     headBranch = `update-${basename(filePath)}-${timestamp}`
   }
 
-  if (headBranch != baseBranch) {
-    // TODO: retry loop after fork
-    await api.git.createRef({
-      ...headRepo,
-      ref: `refs/heads/${headBranch}`,
-      sha: branchRes.data.commit.sha,
+  if (needsPr) {
+    await retry(needsFork ? 6 : 0, 5000, async () => {
+      await api.git.createRef({
+        ...headRepo,
+        ref: `refs/heads/${headBranch}`,
+        sha: branchRes.data.commit.sha,
+      })
     })
   }
 
@@ -80,9 +102,7 @@ export default async function(params: Options): Promise<string> {
     branch: headBranch,
   })
 
-  if (headBranch == baseBranch) {
-    return commitRes.data.commit.html_url
-  } else {
+  if (needsPr) {
     const parts = commitMessage.split('\n\n')
     const title = parts[0]
     const body = parts.slice(1).join('\n\n')
@@ -95,5 +115,7 @@ export default async function(params: Options): Promise<string> {
       body,
     })
     return prRes.data.html_url
+  } else {
+    return commitRes.data.commit.html_url
   }
 }
