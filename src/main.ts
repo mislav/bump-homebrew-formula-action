@@ -30,16 +30,18 @@ const run = async (): Promise<void> => {
   const branch = getInput('base-branch')
   const filePath = `Formula/${formulaName}.rb`
   const tagName = context.ref.replace('refs/tags/', '')
+  const version = tagName.replace(/^v(\d)/, '$1')
   const downloadUrl = getInput('download-url') || tarballForRelease(tagName)
 
   const replacements = new Map<string, string>()
+  replacements.set('version', version)
   replacements.set('url', downloadUrl.toString())
   replacements.set(
     'sha256',
     await calculateDownloadChecksum(api(internalToken), downloadUrl, 'sha256')
   )
 
-  const commitMessage = `${formulaName} ${tagName}
+  const commitMessage = `${formulaName} ${version}
 
 Created by https://github.com/mislav/bump-homebrew-formula-action`
 
