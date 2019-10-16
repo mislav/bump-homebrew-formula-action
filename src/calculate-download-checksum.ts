@@ -2,7 +2,8 @@ import { GitHub } from '@actions/github'
 import { debug } from '@actions/core'
 import { URL } from 'url'
 import { createHash } from 'crypto'
-import { get } from 'https'
+import { get as HTTP } from 'http'
+import { get as HTTPS } from 'https'
 
 interface Headers {
   [name: string]: string
@@ -14,7 +15,7 @@ function stream(
   cb: (chunk: Buffer) => void
 ): Promise<void> {
   return new Promise((resolve, reject): void => {
-    get(url, { headers }, res => {
+    ;(url.protocol == 'https:' ? HTTPS : HTTP)(url, { headers }, res => {
       if (res.statusCode && res.statusCode > 300) {
         throw new Error(`HTTP ${res.statusCode}`)
       }
