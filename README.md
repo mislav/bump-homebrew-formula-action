@@ -15,7 +15,7 @@ jobs:
           formula-name: my_formula
           # homebrew-tap: Homebrew/homebrew-core
           # base-branch: master
-          # download-url: https://example.com/foo-0.1.tar.gz
+          # download-url: https://example.com/foo/v0.1.tar.gz
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
