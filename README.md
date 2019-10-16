@@ -10,7 +10,8 @@ jobs:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
     steps:
-      - uses: mislav/bump-homebrew-formula-action@v1.3
+      - uses: mislav/bump-homebrew-formula-action@v1.4
+        if: "!contains(github.ref, '-')" # skip prereleases
         with:
           formula-name: my_formula
           # homebrew-tap: Homebrew/homebrew-core
