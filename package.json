@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "rm -rf lib && ncc build -s src/main.ts -o lib",
+    "build": "rm -rf lib && ncc build -s src/run.ts -o lib",
     "lint": "eslint --ext '.js,.ts' ."
   },
   "dependencies": {
