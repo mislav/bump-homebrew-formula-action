@@ -1,7 +1,7 @@
 import { setFailed, getInput, debug } from '@actions/core'
 import { context, GitHub } from '@actions/github'
 import editGitHubBlob from './edit-github-blob'
-import replaceFormulaFields from './replace-formula-fields'
+import { replaceFields, UpgradeError } from './replace-formula-fields'
 import calculateDownloadChecksum from './calculate-download-checksum'
 
 function tarballForRelease(tagName: string): string {
@@ -53,12 +53,16 @@ Created by https://github.com/mislav/bump-homebrew-formula-action`
     filePath,
     commitMessage,
     replace(oldContent) {
-      return replaceFormulaFields(oldContent, replacements)
+      return replaceFields(oldContent, replacements)
     },
   })
   console.log(createdUrl)
 }
 
 run().catch(error => {
+  if (error instanceof UpgradeError) {
+    console.warn('Skipping: %s', error.message)
+    return
+  }
   setFailed(error.toString())
 })
