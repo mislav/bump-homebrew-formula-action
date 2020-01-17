@@ -17,6 +17,7 @@ jobs:
           # homebrew-tap: Homebrew/homebrew-core
           # base-branch: master
           # download-url: https://example.com/foo/v0.1.tar.gz
+          # commit-message: {{formulaName}} {{version}}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,6 +64,14 @@ This action will update the following formula fields if they exist:
 
 If you need to customize the value of `url` to something other than the standard
 tarball URL, you can pass in the `download-url` input to this action.
+
+If you need to customise the commit message, to something other than `{{formulaName}} {{version}}`
+you can pass a template string in the `commit-message` input to this action.
+
+The currenly supported tags are:
+
+- `formulaName`: the name of the formula supplied in `formula-name`
+- `version`: the version parsed from the tag name of the release
 
 If the current `COMMITTER_TOKEN` doesn't have push access to the repo specified
 by the `homebrew-tap` input, the formula will be edited in a fork that is
