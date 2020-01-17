@@ -65,15 +65,13 @@ This action will update the following formula fields if they exist:
 If you need to customize the value of `url` to something other than the standard
 tarball URL, you can pass in the `download-url` input to this action.
 
-If you need to customise the commit message, to something other than `'{{formulaName}} {{version}}'`
-you can pass a template or regular string in the `commit-message` input to this action.
+To customize the git commit message used for updating the formula, you can pass
+a template or regular string in the `commit-message` input to this action. The following fields marked up with `{{...}}` will be expanded:
 
-Any supplied tags matching the following will be replaced accordingly.
-
-Tag | Description
+Field | Description
 - | - |
 `formulaName` | the name of the formula supplied in `formula-name`
-`version` | the version parsed from the tag name of the release
+`version` | the version number for this release
 
 If the current `COMMITTER_TOKEN` doesn't have push access to the repo specified
 by the `homebrew-tap` input, the formula will be edited in a fork that is
