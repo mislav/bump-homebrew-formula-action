@@ -31,11 +31,7 @@ export default async function(api: (token: string) => GitHub): Promise<void> {
   const tagName = context.ref.replace('refs/tags/', '')
   const version = tagName.replace(/^v(\d)/, '$1')
   const downloadUrl = getInput('download-url') || tarballForRelease(tagName)
-  const messageTemplate =
-    getInput('commit-message') ||
-    `{{formulaName}} {{version}}
-
-  Created by https://github.com/mislav/bump-homebrew-formula-action`
+  const messageTemplate = getInput('commit-message', { required: true })
 
   const replacements = new Map<string, string>()
   replacements.set('version', version)
