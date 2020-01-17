@@ -69,7 +69,7 @@ To customize the git commit message used for updating the formula, you can pass
 a template or regular string in the `commit-message` input to this action. The following fields marked up with `{{...}}` will be expanded:
 
 Field | Description
-- | - |
+--|--
 `formulaName` | the name of the formula supplied in `formula-name`
 `version` | the version number for this release
 
