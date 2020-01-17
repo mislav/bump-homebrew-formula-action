@@ -11,6 +11,8 @@ inputs:
   homebrew-tap:
     description: The repository where the formula should be updated
     default: Homebrew/homebrew-core
+  base-branch:
+    description: The branch name in the homebrew-tap repository where the formula should be updated
   commit-message:
     description: The git commit message template to use when updating the formula
     default: |
