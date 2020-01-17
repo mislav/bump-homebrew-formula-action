@@ -9,6 +9,16 @@ function tarballForRelease(tagName: string): string {
   return `https://github.com/${owner}/${repo}/archive/${tagName}.tar.gz`
 }
 
+export function commitForRelease(
+  messageTemplate: string,
+  params: { [key: string]: string } = {}
+): string {
+  return Object.keys(params).reduce(
+    (currentMessage, tag) => currentMessage.replace(`{{${tag}}}`, params[tag]),
+    messageTemplate
+  )
+}
+
 export default async function(api: (token: string) => GitHub): Promise<void> {
   const internalToken =
     process.env.GITHUB_TOKEN || process.env.COMMITTER_TOKEN || ''
@@ -21,6 +31,11 @@ export default async function(api: (token: string) => GitHub): Promise<void> {
   const tagName = context.ref.replace('refs/tags/', '')
   const version = tagName.replace(/^v(\d)/, '$1')
   const downloadUrl = getInput('download-url') || tarballForRelease(tagName)
+  const messageTemplate =
+    getInput('commit-message') ||
+    `{{formulaName}} {{version}}
+
+  Created by https://github.com/mislav/bump-homebrew-formula-action`
 
   const replacements = new Map<string, string>()
   replacements.set('version', version)
@@ -30,9 +45,10 @@ export default async function(api: (token: string) => GitHub): Promise<void> {
     await calculateDownloadChecksum(api(internalToken), downloadUrl, 'sha256')
   )
 
-  const commitMessage = `${formulaName} ${version}
-
-Created by https://github.com/mislav/bump-homebrew-formula-action`
+  const commitMessage = commitForRelease(messageTemplate, {
+    formulaName,
+    version,
+  })
 
   const createdUrl = await editGitHubBlob({
     apiClient: api(externalToken),
