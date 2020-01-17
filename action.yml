@@ -5,11 +5,18 @@ runs:
   using: node12
   main: "./lib/index.js"
 inputs:
+  formula-name:
+    description: The name of the Homebrew formula
+    required: true
   homebrew-tap:
     description: The repository where the formula should be updated
     default: Homebrew/homebrew-core
-  formula-name:
-    description: The name of the Homebrew formula
+  commit-message:
+    description: The git commit message template to use when updating the formula
+    default: |
+      {{formulaName}} {{version}}
+
+      Created by https://github.com/mislav/bump-homebrew-formula-action
 branding:
   icon: box
   color: orange
