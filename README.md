@@ -1,5 +1,30 @@
 An action that bumps a Homebrew formula after a new release.
 
+Minimal usage example:
+```yml
+on:
+  push:
+    tags: 'v*'
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v1
+        with:
+          # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
+          formula-name: my_formula
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+```
+
+The `COMMITTER_TOKEN` secret is required because this action will want to write
+to an external repository. You can [generate a new PAT
+here](https://github.com/settings/tokens) and give it `public_repo` (or `repo`
+if the homebrew tap repository is private) scopes.
+
+Comprehensive usage example:
 ```yml
 on:
   push:
@@ -14,24 +39,19 @@ jobs:
         if: "!contains(github.ref, '-')" # skip prereleases
         with:
           formula-name: my_formula
-          # homebrew-tap: Homebrew/homebrew-core
-          # base-branch: master
-          # download-url: https://example.com/foo/v0.1.tar.gz
-          # commit-message: {{formulaName}} {{version}}
+          homebrew-tap: Homebrew/homebrew-core
+          base-branch: master
+          download-url: https://example.com/foo/v0.1.tar.gz
+          commit-message: {{formulaName}} {{version}}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The `COMMITTER_TOKEN` secret is required because this action will want to write
-to an external repository. You can [generate a new PAT
-here](https://github.com/settings/tokens) and give it `public_repo` or `repo`
-scopes.
-
-You should enable `GITHUB_TOKEN` if the repository that runs this Action is
-private and `COMMITTER_TOKEN` has only the `public_repo` scope. The token will
-be used for verifying the SHA256 sum of the downloadable archive for this
-release.
+You should enable `GITHUB_TOKEN` only if the repository that runs this Action is
+private _and_ if `COMMITTER_TOKEN` has the `public_repo` scope only.
+`GITHUB_TOKEN` will be used for verifying the SHA256 sum of the downloadable
+archive for this release.
 
 ## How it works
 
