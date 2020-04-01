@@ -7,7 +7,7 @@ runs:
 inputs:
   formula-name:
     description: The name of the Homebrew formula
-    required: true
+    default: ${{ github.repository }}
   homebrew-tap:
     description: The repository where the formula should be updated
     default: Homebrew/homebrew-core
