@@ -25,7 +25,7 @@ export default async function(api: (token: string) => GitHub): Promise<void> {
   const externalToken = process.env.COMMITTER_TOKEN || ''
 
   const [owner, repo] = getInput('homebrew-tap', { required: true }).split('/')
-  const formulaName = getInput('formula-name', { required: true }).replace(/^.*\//, '')
+  const formulaName = getInput('formula-name') || context.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
   const filePath = `Formula/${formulaName}.rb`
   const tagName = context.ref.replace('refs/tags/', '')
