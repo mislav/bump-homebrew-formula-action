@@ -6,8 +6,7 @@ runs:
   main: "./lib/index.js"
 inputs:
   formula-name:
-    description: The name of the Homebrew formula
-    required: true
+    description: The name of the Homebrew formula (defaults to lower-cased repository name)
   homebrew-tap:
     description: The repository where the formula should be updated
     default: Homebrew/homebrew-core
