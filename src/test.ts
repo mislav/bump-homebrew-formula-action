@@ -3,7 +3,7 @@ import { commitForRelease } from './main'
 import { fromUrl } from './version'
 import { replaceFields } from './replace-formula-fields'
 
-test('version.fromUrl()', t => {
+test('version.fromUrl()', (t) => {
   t.is(
     fromUrl('https://github.com/me/myproject/archive/v1.2.3.tar.gz'),
     'v1.2.3'
@@ -18,7 +18,7 @@ test('version.fromUrl()', t => {
   t.is(fromUrl('https://example.com/v1.2.3.zip'), 'v1.2.3')
 })
 
-test('main.commitForRelease()', t => {
+test('main.commitForRelease()', (t) => {
   t.is(
     commitForRelease('This is a fixed commit message', {
       formulaName: 'test formula',
@@ -40,7 +40,7 @@ test('main.commitForRelease()', t => {
   )
 })
 
-test('replace-formula-fields.replaceFields()', t => {
+test('replace-formula-fields.replaceFields()', (t) => {
   const input = `
   url "https://github.com/old/url.git",
     tag: 'v0.9.0',

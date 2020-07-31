@@ -3,7 +3,7 @@ import api from './api'
 import { UpgradeError } from './replace-formula-fields'
 import run from './main'
 
-run(api).catch(error => {
+run(api).catch((error) => {
   if (error instanceof UpgradeError) {
     console.warn('Skipping: %s', error.message)
     return

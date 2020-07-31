@@ -4,7 +4,11 @@ import editGitHubBlob from './edit-github-blob'
 import { replaceFields } from './replace-formula-fields'
 import calculateDownloadChecksum from './calculate-download-checksum'
 
-function tarballForRelease(owner: string, repo: string, tagName: string): string {
+function tarballForRelease(
+  owner: string,
+  repo: string,
+  tagName: string
+): string {
   return `https://github.com/${owner}/${repo}/archive/${tagName}.tar.gz`
 }
 
@@ -23,7 +27,8 @@ export default async function (api: (token: string) => API): Promise<void> {
     process.env.GITHUB_TOKEN || process.env.COMMITTER_TOKEN || ''
   const externalToken = process.env.COMMITTER_TOKEN || ''
 
-  const [contextOwner, contextRepoName] = (process.env.GITHUB_REPOSITORY as string).split('/')
+  const [contextOwner, contextRepoName] = (process.env
+    .GITHUB_REPOSITORY as string).split('/')
 
   const [owner, repo] = getInput('homebrew-tap', { required: true }).split('/')
   const formulaName = getInput('formula-name') || contextRepoName.toLowerCase()
@@ -32,7 +37,9 @@ export default async function (api: (token: string) => API): Promise<void> {
   const tagName = (process.env.GITHUB_REF as string).replace('refs/tags/', '')
   const tagSha = process.env.GITHUB_SHA as string
   const version = tagName.replace(/^v(\d)/, '$1')
-  const downloadUrl = getInput('download-url') || tarballForRelease(contextOwner, contextRepoName, tagName)
+  const downloadUrl =
+    getInput('download-url') ||
+    tarballForRelease(contextOwner, contextRepoName, tagName)
   const messageTemplate = getInput('commit-message', { required: true })
 
   const replacements = new Map<string, string>()

@@ -15,13 +15,13 @@ function stream(
   cb: (chunk: Buffer) => void
 ): Promise<void> {
   return new Promise((resolve, reject): void => {
-    ; (url.protocol == 'https:' ? HTTPS : HTTP)(url, { headers }, res => {
+    ;(url.protocol == 'https:' ? HTTPS : HTTP)(url, { headers }, (res) => {
       if (res.statusCode && res.statusCode > 300) {
         throw new Error(`HTTP ${res.statusCode}`)
       }
-      res.on('data', d => cb(d))
+      res.on('data', (d) => cb(d))
       res.on('end', () => resolve())
-    }).on('error', err => reject(err))
+    }).on('error', (err) => reject(err))
   })
 }
 
@@ -54,7 +54,7 @@ async function resolveDownload(api: API, url: URL): Promise<URL> {
     if (release != null) {
       const [, owner, repo, tag, path] = release
       const res = await api.repos.getReleaseByTag({ owner, repo, tag })
-      const asset = res.data.assets.find(a => a.name == path)
+      const asset = res.data.assets.find((a) => a.name == path)
       if (asset == null) {
         throw new Error(`could not find asset '${path}' in '${tag}' release`)
       }
@@ -84,6 +84,6 @@ export default async function (
   const requestHeaders = { accept: 'application/octet-stream' }
   const hash = createHash(algorithm)
   log(downloadUrl)
-  await stream(downloadUrl, requestHeaders, chunk => hash.update(chunk))
+  await stream(downloadUrl, requestHeaders, (chunk) => hash.update(chunk))
   return hash.digest('hex')
 }
