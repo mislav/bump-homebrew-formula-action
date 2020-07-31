@@ -73,12 +73,13 @@ jobs:
         with:
           formula-name: my_formula
           formula-version: ${{ github.event.inputs.version }}
-          base-branch: master
           download-url: https://example.com/foo/v${{ github.event.inputs.version }}.tar.gz
           commit-message: {{formulaName}} {{version}}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
 ```
+
+Explicitly setting `formula-version` requires `download-url` that is not a Git repository URL.
 
 ## How it works
 
