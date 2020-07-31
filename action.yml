@@ -7,6 +7,8 @@ runs:
 inputs:
   formula-name:
     description: The name of the Homebrew formula (defaults to lower-cased repository name)
+  formula-version:
+    description: The version of the Homebrew formula (defaults to tag name without leading "v")
   download-url:
     description: The package download URL for the Homebrew formula (defaults to the release tarball)
   homebrew-tap:

@@ -36,7 +36,7 @@ export default async function (api: (token: string) => API): Promise<void> {
   const filePath = `Formula/${formulaName}.rb`
   const tagName = (process.env.GITHUB_REF as string).replace('refs/tags/', '')
   const tagSha = process.env.GITHUB_SHA as string
-  const version = tagName.replace(/^v(\d)/, '$1')
+  const version = getInput('formula-version') || tagName.replace(/^v(\d)/, '$1')
   const downloadUrl =
     getInput('download-url') ||
     tarballForRelease(contextOwner, contextRepoName, tagName)
