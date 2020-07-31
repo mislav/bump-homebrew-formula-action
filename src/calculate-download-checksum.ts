@@ -1,4 +1,4 @@
-import { GitHub } from '@actions/github'
+import type { API } from './api'
 import { debug } from '@actions/core'
 import { URL } from 'url'
 import { createHash } from 'crypto'
@@ -15,24 +15,24 @@ function stream(
   cb: (chunk: Buffer) => void
 ): Promise<void> {
   return new Promise((resolve, reject): void => {
-    ;(url.protocol == 'https:' ? HTTPS : HTTP)(url, { headers }, res => {
+    ;(url.protocol == 'https:' ? HTTPS : HTTP)(url, { headers }, (res) => {
       if (res.statusCode && res.statusCode > 300) {
         throw new Error(`HTTP ${res.statusCode}`)
       }
-      res.on('data', d => cb(d))
+      res.on('data', (d) => cb(d))
       res.on('end', () => resolve())
-    }).on('error', err => reject(err))
+    }).on('error', (err) => reject(err))
   })
 }
 
-async function resolveDownload(api: GitHub, url: URL): Promise<URL> {
+async function resolveDownload(api: API, url: URL): Promise<URL> {
   if (url.hostname == 'github.com') {
     const archive = url.pathname.match(
       /^\/([^/]+)\/([^/]+)\/archive\/([^/]+)(\.tar\.gz|\.zip)$/
     )
     if (archive != null) {
       const [, owner, repo, ref, ext] = archive
-      const res = await api.repos.getArchiveLink({
+      const res = await api.repos.downloadArchive({
         owner,
         repo,
         archive_format: ext == '.zip' ? 'zipball' : 'tarball',
@@ -41,8 +41,7 @@ async function resolveDownload(api: GitHub, url: URL): Promise<URL> {
           redirect: 'manual',
         },
       })
-      const loc: string =
-        'location' in res.headers ? res.headers['location'] : ''
+      const loc = res.headers['location'] as string
       // HACK: removing "legacy" from the codeload URL ensures that we get the
       // same archive file as web download. Otherwise, the downloaded archive
       // contains resolved commit SHA instead of the tag name in directory path.
@@ -55,7 +54,7 @@ async function resolveDownload(api: GitHub, url: URL): Promise<URL> {
     if (release != null) {
       const [, owner, repo, tag, path] = release
       const res = await api.repos.getReleaseByTag({ owner, repo, tag })
-      const asset = res.data.assets.find(a => a.name == path)
+      const asset = res.data.assets.find((a) => a.name == path)
       if (asset == null) {
         throw new Error(`could not find asset '${path}' in '${tag}' release`)
       }
@@ -63,8 +62,7 @@ async function resolveDownload(api: GitHub, url: URL): Promise<URL> {
         headers: { accept: 'application/octet-stream' },
         request: { redirect: 'manual' },
       })
-      const loc: string =
-        'location' in assetRes.headers ? assetRes.headers['location'] : ''
+      const loc = assetRes.headers['location'] as string
       return new URL(loc)
     }
   }
@@ -77,8 +75,8 @@ function log(url: URL): void {
   debug(`GET ${url.protocol}//${url.hostname}${url.pathname}${q}`)
 }
 
-export default async function(
-  api: GitHub,
+export default async function (
+  api: API,
   url: string,
   algorithm: string
 ): Promise<string> {
@@ -86,6 +84,6 @@ export default async function(
   const requestHeaders = { accept: 'application/octet-stream' }
   const hash = createHash(algorithm)
   log(downloadUrl)
-  await stream(downloadUrl, requestHeaders, chunk => hash.update(chunk))
+  await stream(downloadUrl, requestHeaders, (chunk) => hash.update(chunk))
   return hash.digest('hex')
 }

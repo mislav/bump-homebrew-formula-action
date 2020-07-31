@@ -1,4 +1,4 @@
-import { GitHub } from '@actions/github'
+import type { API } from './api'
 import { basename } from 'path'
 
 async function retry<T>(
@@ -25,12 +25,12 @@ type Options = {
   repo: string
   filePath: string
   branch?: string
-  apiClient: GitHub
+  apiClient: API
   replace: (oldContent: string) => string
   commitMessage?: string
 }
 
-export default async function(params: Options): Promise<string> {
+export default async function (params: Options): Promise<string> {
   const baseRepo = {
     owner: params.owner,
     repo: params.repo,
@@ -72,7 +72,7 @@ export default async function(params: Options): Promise<string> {
     })
   }
 
-  const fileRes = await api.repos.getContents({
+  const fileRes = await api.repos.getContent({
     ...headRepo,
     path: filePath,
     ref: headBranch,
@@ -93,7 +93,7 @@ export default async function(params: Options): Promise<string> {
   const commitMessage = params.commitMessage
     ? params.commitMessage
     : `Update ${filePath}`
-  const commitRes = await api.repos.createOrUpdateFile({
+  const commitRes = await api.repos.createOrUpdateFileContents({
     ...headRepo,
     path: filePath,
     message: commitMessage,

@@ -9,15 +9,17 @@
   ],
   "rules": {
     // octokit/rest requires parameters that are not in camelcase
-    "camelcase": "off",
-    "@typescript-eslint/camelcase": ["error", { "properties": "never" }]
+    "camelcase": "off"
+    // "@typescript-eslint/camelcase": ["error", { "properties": "never" }]
   },
-  "overrides": [{
-    "files": "**/*.js",
-    "rules": {
-      "@typescript-eslint/explicit-function-return-type": "off"
+  "overrides": [
+    {
+      "files": "**/*.js",
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off"
+      }
     }
-  }],
+  ],
   "env": {
     "node": true,
     "es6": true

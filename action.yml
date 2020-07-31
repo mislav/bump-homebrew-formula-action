@@ -6,11 +6,14 @@ runs:
   main: "./lib/index.js"
 inputs:
   formula-name:
-    description: The name of the Homebrew formula
-    required: true
+    description: The name of the Homebrew formula (defaults to lower-cased repository name)
+  download-url:
+    description: The package download URL for the Homebrew formula (defaults to the release tarball)
   homebrew-tap:
     description: The repository where the formula should be updated
     default: Homebrew/homebrew-core
+  base-branch:
+    description: The branch name in the homebrew-tap repository where the formula should be updated
   commit-message:
     description: The git commit message template to use when updating the formula
     default: |
