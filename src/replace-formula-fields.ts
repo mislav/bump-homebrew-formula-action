@@ -1,6 +1,6 @@
 import { compare, fromUrl } from './version'
 
-export class UpgradeError extends Error {}
+export class UpgradeError extends Error { }
 
 function assertNewer(v1: string, v2: string): void {
   const c = compare(v1, v2)
@@ -22,11 +22,11 @@ export function replaceFields(
   let newContent = oldContent
   for (const [field, value] of replacements) {
     newContent = newContent.replace(
-      new RegExp(`^(\\s*)${field} +(['"])([^'"]+)\\2`, 'm'),
-      (_, sp, q, old) => {
+      new RegExp(`^(\\s*)${field}((?::| *=>)? *)(['"])([^'"]+)\\3`, 'm'),
+      (_: string, indent: string, sep: string, q: string, old: string): string => {
         if (field == 'version') assertNewer(value, old)
-        else if (field == 'url') assertNewer(fromUrl(value), fromUrl(old))
-        return `${sp}${field} ${q}${escape(value, q)}${q}`
+        else if (field == 'url' && !value.endsWith('.git')) assertNewer(fromUrl(value), fromUrl(old))
+        return `${indent}${field}${sep}${q}${escape(value, q)}${q}`
       }
     )
   }

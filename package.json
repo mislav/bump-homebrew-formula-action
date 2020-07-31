@@ -6,24 +6,31 @@
     "test": "tsc && ava"
   },
   "dependencies": {
-    "@actions/core": "^1.1.0",
-    "@actions/github": "^1.1.0"
+    "@actions/core": "^1.2.4",
+    "@octokit/core": "^3.1.1",
+    "@octokit/plugin-request-log": "^1.0.0",
+    "@octokit/plugin-rest-endpoint-methods": "^4.1.2"
   },
   "devDependencies": {
     "@types/node": "^12.7.5",
     "@typescript-eslint/eslint-plugin": "^2.2.0",
     "@typescript-eslint/parser": "^2.2.0",
-    "@zeit/ncc": "^0.20.5",
-    "ava": "^2.4.0",
+    "@zeit/ncc": "^0.22.3",
+    "ava": "^3.11.0",
     "eslint": "^6.3.0",
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-prettier": "^3.1.0",
     "prettier": "^1.18.2",
-    "typescript": "^3.6.3"
+    "typescript": "^3.9.7"
   },
   "prettier": {
     "trailingComma": "es5",
     "semi": false,
     "singleQuote": true
+  },
+  "ava": {
+    "files": [
+      "lib/*test.js"
+    ]
   }
 }
