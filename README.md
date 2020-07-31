@@ -1,6 +1,7 @@
 An action that bumps a Homebrew formula after a new release.
 
 Minimal usage example:
+
 ```yml
 on:
   push:
@@ -25,6 +26,7 @@ here](https://github.com/settings/tokens) and give it `public_repo` (or `repo`
 if the homebrew tap repository is private) scopes.
 
 Comprehensive usage example:
+
 ```yml
 on:
   push:
@@ -78,9 +80,12 @@ end
 ```
 
 This action will update the following formula fields if they exist:
-- `url`
-- `sha256`
+
 - `version`
+- `url`
+- `sha256` - for non-git `download-url`
+- `tag` - for git-based `download-url`
+- `revision` - for git-based `download-url`
 
 If you need to customize the value of `url` to something other than the standard
 tarball URL, you can pass in the `download-url` input to this action.
@@ -88,10 +93,10 @@ tarball URL, you can pass in the `download-url` input to this action.
 To customize the git commit message used for updating the formula, you can pass
 a template or regular string in the `commit-message` input to this action. The following fields marked up with `{{...}}` will be expanded:
 
-Field | Description
---|--
-`formulaName` | the name of the formula supplied in `formula-name`
-`version` | the version number for this release
+| Field         | Description                                        |
+| ------------- | -------------------------------------------------- |
+| `formulaName` | the name of the formula supplied in `formula-name` |
+| `version`     | the version number for this release                |
 
 If the current `COMMITTER_TOKEN` doesn't have push access to the repo specified
 by the `homebrew-tap` input, the formula will be edited in a fork that is
