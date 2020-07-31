@@ -55,6 +55,31 @@ private _and_ if `COMMITTER_TOKEN` has the `public_repo` scope only.
 `GITHUB_TOKEN` will be used for verifying the SHA256 sum of the downloadable
 archive for this release.
 
+Example of manually triggered workflow:
+
+```yml
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Formula version'
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v1
+        with:
+          formula-name: my_formula
+          formula-version: ${{ github.event.inputs.version }}
+          base-branch: master
+          download-url: https://example.com/foo/v${{ github.event.inputs.version }}.tar.gz
+          commit-message: {{formulaName}} {{version}}
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+```
+
 ## How it works
 
 Given a Homebrew formula `Formula/my_formula.rb` in the
