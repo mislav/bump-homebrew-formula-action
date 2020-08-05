@@ -62,7 +62,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Formula version'
+        description: 'Formula tag'
 
 jobs:
   homebrew:
@@ -72,14 +72,14 @@ jobs:
       - uses: mislav/bump-homebrew-formula-action@v1
         with:
           formula-name: my_formula
-          formula-version: ${{ github.event.inputs.version }}
+          tag-name: ${{ github.event.inputs.version }}
           download-url: https://example.com/foo/v${{ github.event.inputs.version }}.tar.gz
           commit-message: {{formulaName}} {{version}}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
 ```
 
-Explicitly setting `formula-version` requires `download-url` that is not a Git repository URL.
+Explicitly setting `tag-name` requires `download-url` that is not a Git repository URL.
 
 ## How it works
 
