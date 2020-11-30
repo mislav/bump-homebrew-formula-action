@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "rm -rf lib && ncc build src/run.ts -o lib",
+    "build": "rm -rf lib && ncc build src/run.ts -o lib --source-map",
     "lint": "eslint --ext '.js,.ts' .",
     "test": "tsc && ava"
   },
