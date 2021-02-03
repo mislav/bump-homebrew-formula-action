@@ -16,7 +16,14 @@ function stream(
 ): Promise<void> {
   return new Promise((resolve, reject): void => {
     ;(url.protocol == 'https:' ? HTTPS : HTTP)(url, { headers }, (res) => {
-      if (res.statusCode && res.statusCode > 300) {
+      if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
+        const loc = res.headers['location']
+        if (loc == null) throw `HTTP ${res.statusCode} but no Location header`
+        const nextURL = new URL(loc)
+        log(nextURL)
+        resolve(stream(nextURL, headers, cb))
+        return
+      } else if (res.statusCode && res.statusCode >= 400) {
         throw new Error(`HTTP ${res.statusCode}`)
       }
       res.on('data', (d) => cb(d))
