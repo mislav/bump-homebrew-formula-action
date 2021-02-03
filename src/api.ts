@@ -1,3 +1,4 @@
+import { isDebug } from '@actions/core'
 import { Octokit } from '@octokit/core'
 import { restEndpointMethods } from '@octokit/plugin-rest-endpoint-methods'
 import { requestLog } from '@octokit/plugin-request-log'
@@ -19,7 +20,7 @@ export default function (token: string): API {
   const log: Logger = {
     info: console.log,
   }
-  if (process.env.RUNNER_DEBUG == '1') {
+  if (isDebug()) {
     log.debug = console.debug
   }
 
