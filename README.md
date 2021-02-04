@@ -44,7 +44,10 @@ jobs:
           homebrew-tap: Homebrew/homebrew-core
           base-branch: master
           download-url: https://example.com/foo/v0.1.tar.gz
-          commit-message: {{formulaName}} {{version}}
+          commit-message: |
+            {{formulaName}} {{version}}
+
+            Created by https://github.com/mislav/bump-homebrew-formula-action
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -117,12 +120,17 @@ If you need to customize the value of `url` to something other than the standard
 tarball URL, you can pass in the `download-url` input to this action.
 
 To customize the git commit message used for updating the formula, you can pass
-a template or regular string in the `commit-message` input to this action. The following fields marked up with `{{...}}` will be expanded:
+a template or regular string in the `commit-message` input to this action. The
+following fields marked up with `{{...}}` will be expanded:
 
 | Field         | Description                                        |
 | ------------- | -------------------------------------------------- |
 | `formulaName` | the name of the formula supplied in `formula-name` |
 | `version`     | the version number for this release                |
+
+It's recommended that `commit-message` has _both subject and body_, i.e. that it
+contains a subject line followed by a blank line followed by body text. Otherwise,
+pull requests to `Homebrew/homebrew-core` might get denied by their automation.
 
 If the current `COMMITTER_TOKEN` doesn't have push access to the repo specified
 by the `homebrew-tap` input, the formula will be edited in a fork that is
