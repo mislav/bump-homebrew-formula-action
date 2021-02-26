@@ -41,7 +41,6 @@ jobs:
         if: "!contains(github.ref, '-')" # skip prereleases
         with:
           formula-name: my_formula
-          version: 1.0 # Override version instead of using tag
           homebrew-tap: Homebrew/homebrew-core
           base-branch: master
           download-url: https://example.com/foo/v0.1.tar.gz
@@ -55,6 +54,32 @@ You should enable `GITHUB_TOKEN` only if the repository that runs this Action is
 private _and_ if `COMMITTER_TOKEN` has the `public_repo` scope only.
 `GITHUB_TOKEN` will be used for verifying the SHA256 sum of the downloadable
 archive for this release.
+
+Non-tag based builds (override default version behavior):
+
+```yml
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v1
+        with:
+          formula-name: my_formula
+          version: ${{ github.events.inputs.version }} # Override version instead of using tag
+          homebrew-tap: Homebrew/homebrew-core
+          base-branch: master
+          download-url: https://example.com/foo/v0.1.tar.gz
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+```
 
 ## How it works
 
