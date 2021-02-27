@@ -69,6 +69,9 @@ archive for this release.
 * `formula-name`: the name of the Homebrew formula to bump. Defaults to
   lower-cased repository name.
 
+* `formula-path`: the path to the Homebrew formula file to edit. Defaults to
+  `Formula/<formula-name>.rb`.
+
 * `tag-name`: the git tag name to bump the formula to. Defaults to the
   currently pushed tag.
 
