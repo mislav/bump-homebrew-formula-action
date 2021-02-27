@@ -41,6 +41,7 @@ jobs:
         if: "!contains(github.ref, '-')" # skip prereleases
         with:
           formula-name: my_formula
+          formula-path: Formula/my_formula.rb
           homebrew-tap: Homebrew/homebrew-core
           base-branch: master
           download-url: https://example.com/foo/v0.1.tar.gz
