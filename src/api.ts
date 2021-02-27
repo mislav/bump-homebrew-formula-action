@@ -9,23 +9,24 @@ const GitHub = Octokit.plugin(restEndpointMethods, requestLog).defaults({
 
 export type API = InstanceType<typeof GitHub>
 
-type LogMethod = (msg: any, ...params: any[]) => void
-
-type Logger = {
-  info?: LogMethod
-  debug?: LogMethod
-}
-
-export default function (token: string): API {
-  const log: Logger = {
-    info: console.log,
-  }
-  if (isDebug()) {
-    log.debug = console.debug
-  }
-
+export default function (token: string, options?: {fetch?: any}): API {
   return new GitHub({
+    request: {fetch: options?.fetch},
     auth: `token ${token}`,
-    log,
+    log: {
+      info(msg: string) {
+        return console.info(msg)
+      },
+      debug(msg: string) {
+        if (!isDebug()) return
+        return console.debug(msg)
+      },
+      warn(msg: string) {
+        return console.warn(msg)
+      },
+      error(msg: string) {
+        return console.error(msg)
+      },
+    },
   })
 }
