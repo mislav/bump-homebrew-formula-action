@@ -3,23 +3,26 @@
   "scripts": {
     "build": "rm -rf lib && ncc build src/run.ts -o lib --source-map",
     "lint": "eslint --ext '.js,.ts' .",
-    "test": "tsc && ava"
+    "test": "tsc --sourceMap && ava"
   },
   "dependencies": {
-    "@actions/core": "^1.2.4",
-    "@octokit/core": "^3.1.1",
-    "@octokit/plugin-request-log": "^1.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "^4.1.2"
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0",
+    "@octokit/core": "^3.2.5",
+    "@octokit/plugin-request-log": "^1.0.3",
+    "@octokit/plugin-rest-endpoint-methods": "^4.10.1"
   },
   "devDependencies": {
-    "@types/node": "^12.7.5",
+    "@types/node": "^14.14.25",
+    "@types/node-fetch": "^2.5.8",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
     "@typescript-eslint/parser": "^3.7.1",
-    "@zeit/ncc": "^0.22.3",
+    "@vercel/ncc": "^0.27.0",
     "ava": "^3.11.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "node-fetch": "^2.6.1",
     "prettier": "^2.0.5",
     "typescript": "^3.9.7"
   },

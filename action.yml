@@ -1,14 +1,16 @@
 name: bump-homebrew-formula
-description: "Bump Homebrew formula after a new release"
-author: "@mislav"
+description: 'Bump Homebrew formula after a new release'
+author: '@mislav'
 runs:
   using: node12
-  main: "./lib/index.js"
+  main: './lib/index.js'
 inputs:
   formula-name:
     description: The name of the Homebrew formula (defaults to lower-cased repository name)
   formula-path:
-    description: The path to the Homebrew formula (defaults to `Formula/${formula-name}`)
+    description: The path to the Homebrew formula file (defaults to `Formula/<formula-name>.rb`)
+  tag-name:
+    description: The git tag name to bump the formula to (defaults to the currently pushed tag)
   download-url:
     description: The package download URL for the Homebrew formula (defaults to the release tarball)
   homebrew-tap:

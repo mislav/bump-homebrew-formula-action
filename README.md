@@ -37,6 +37,10 @@ jobs:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
     steps:
+      - name: Extract version
+        id: extract-version
+        run: |
+          printf "::set-output name=%s::%s\n" tag-name "${GITHUB_REF#refs/tags/}"
       - uses: mislav/bump-homebrew-formula-action@v1
         if: "!contains(github.ref, '-')" # skip prereleases
         with:
@@ -44,8 +48,11 @@ jobs:
           formula-path: Formula/my_formula.rb
           homebrew-tap: Homebrew/homebrew-core
           base-branch: master
-          download-url: https://example.com/foo/v0.1.tar.gz
-          commit-message: {{formulaName}} {{version}}
+          download-url: https://example.com/foo/${{ steps.extract-version.outputs.tag-name }}.tar.gz
+          commit-message: |
+            {{formulaName}} {{version}}
+
+            Created by https://github.com/mislav/bump-homebrew-formula-action
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -55,6 +62,46 @@ You should enable `GITHUB_TOKEN` only if the repository that runs this Action is
 private _and_ if `COMMITTER_TOKEN` has the `public_repo` scope only.
 `GITHUB_TOKEN` will be used for verifying the SHA256 sum of the downloadable
 archive for this release.
+
+
+## Action inputs
+
+* `formula-name`: the name of the Homebrew formula to bump. Defaults to
+  lower-cased repository name.
+
+* `tag-name`: the git tag name to bump the formula to. Defaults to the
+  currently pushed tag.
+
+* `download-url`: the package download URL for the Homebrew formula.
+
+  Defaults to `https://github.com/OWNER/REPO/archive/<tag-name>.tar.gz`
+
+* `homebrew-tap`: the repository where the formula should be updated. Defaults
+  to `Homebrew/homebrew-core`.
+
+* `base-branch`: the branch name in the `homebrew-tap` repository where the
+  formula should be updated. Defaults to the main branch.
+
+* `commit-message`: the git commit message template to use when updating the
+  formula. The following placeholders be expanded:
+
+  | Placeholder       | Description                                        |
+  | ----------------- | -------------------------------------------------- |
+  | `{{formulaName}}` | the name of the formula supplied in `formula-name` |
+  | `{{version}}`     | the version number for this release                |
+
+  It's recommended that `commit-message` has _both subject and body_, i.e. that
+  it contains a subject line followed by a blank line followed by body text.
+  Otherwise, pull requests to `Homebrew/homebrew-core` might get denied by
+  their automation.
+
+  Defaults to:
+  ```
+  {{formulaName}} {{version}}
+
+  Created by https://github.com/mislav/bump-homebrew-formula-action
+  ```
+
 
 ## How it works
 
@@ -80,24 +127,13 @@ class MyFormula < Formula
 end
 ```
 
-This action will update the following formula fields if they exist:
+This action can update the following Homebrew formula fields:
 
 - `version`
 - `url`
 - `sha256` - for non-git `download-url`
 - `tag` - for git-based `download-url`
 - `revision` - for git-based `download-url`
-
-If you need to customize the value of `url` to something other than the standard
-tarball URL, you can pass in the `download-url` input to this action.
-
-To customize the git commit message used for updating the formula, you can pass
-a template or regular string in the `commit-message` input to this action. The following fields marked up with `{{...}}` will be expanded:
-
-| Field         | Description                                        |
-| ------------- | -------------------------------------------------- |
-| `formulaName` | the name of the formula supplied in `formula-name` |
-| `version`     | the version number for this release                |
 
 If the current `COMMITTER_TOKEN` doesn't have push access to the repo specified
 by the `homebrew-tap` input, the formula will be edited in a fork that is
@@ -107,3 +143,31 @@ If the token has push access, but the default branch of the tap repo is
 protected, a pull request will be opened from a new branch in the same repo.
 
 Otherwise, the formula will be edited via a direct push to the default branch.
+
+
+## Manual trigger
+
+Here's an example of how to set up this action to be manually triggered instead
+of being triggered by pushing to a git tag:
+
+```yml
+on:
+  workflow_dispatch:
+    inputs:
+      tag-name:
+        description: 'The git tag name to bump the formula to'
+        required: true
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v1
+        with:
+          formula-name: my_formula
+          tag-name: ${{ github.event.inputs.tag-name }}
+          download-url: https://example.com/foo/${{ github.event.inputs.tag-name }}.tar.gz
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+```

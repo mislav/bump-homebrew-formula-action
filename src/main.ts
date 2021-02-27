@@ -1,8 +1,10 @@
 import { getInput } from '@actions/core'
 import type { API } from './api'
 import editGitHubBlob from './edit-github-blob'
+import { Options as EditOptions } from './edit-github-blob'
 import { replaceFields } from './replace-formula-fields'
 import calculateDownloadChecksum from './calculate-download-checksum'
+import { context } from '@actions/github'
 
 function tarballForRelease(
   owner: string,
@@ -27,19 +29,44 @@ export default async function (api: (token: string) => API): Promise<void> {
     process.env.GITHUB_TOKEN || process.env.COMMITTER_TOKEN || ''
   const externalToken = process.env.COMMITTER_TOKEN || ''
 
-  const [contextOwner, contextRepoName] = (process.env
-    .GITHUB_REPOSITORY as string).split('/')
+  const options = await prepareEdit(
+    context,
+    api(internalToken),
+    api(externalToken)
+  )
+  const createdUrl = await editGitHubBlob(options)
+  console.log(createdUrl)
+}
+
+type Context = {
+  ref: string
+  sha: string
+  repo: {
+    owner: string
+    repo: string
+  }
+}
+
+export async function prepareEdit(
+  ctx: Context,
+  sameRepoClient: API,
+  crossRepoClient: API
+): Promise<EditOptions> {
+  const tagName =
+    getInput('tag-name') ||
+    ((ref) => {
+      if (!ref.startsWith('refs/tags/')) throw `invalid ref: ${ref}`
+      return ref.replace('refs/tags/', '')
+    })(ctx.ref)
 
   const [owner, repo] = getInput('homebrew-tap', { required: true }).split('/')
-  const formulaName = getInput('formula-name') || contextRepoName.toLowerCase()
+  const formulaName = getInput('formula-name') || ctx.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
   const filePath = getInput('formula-path') || `Formula/${formulaName}.rb`
-  const tagName = (process.env.GITHUB_REF as string).replace('refs/tags/', '')
-  const tagSha = process.env.GITHUB_SHA as string
   const version = tagName.replace(/^v(\d)/, '$1')
   const downloadUrl =
     getInput('download-url') ||
-    tarballForRelease(contextOwner, contextRepoName, tagName)
+    tarballForRelease(ctx.repo.owner, ctx.repo.repo, tagName)
   const messageTemplate = getInput('commit-message', { required: true })
 
   const replacements = new Map<string, string>()
@@ -47,11 +74,23 @@ export default async function (api: (token: string) => API): Promise<void> {
   replacements.set('url', downloadUrl)
   if (downloadUrl.endsWith('.git')) {
     replacements.set('tag', tagName)
-    replacements.set('revision', tagSha)
+    replacements.set(
+      'revision',
+      await (async () => {
+        if (ctx.ref == `refs/tags/${tagName}`) return ctx.sha
+        else {
+          const res = await sameRepoClient.git.getRef({
+            ...ctx.repo,
+            ref: `tags/${tagName}`,
+          })
+          return res.data.object.sha
+        }
+      })()
+    )
   } else {
     replacements.set(
       'sha256',
-      await calculateDownloadChecksum(api(internalToken), downloadUrl, 'sha256')
+      await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256')
     )
   }
 
@@ -60,16 +99,15 @@ export default async function (api: (token: string) => API): Promise<void> {
     version,
   })
 
-  const createdUrl = await editGitHubBlob({
-    apiClient: api(externalToken),
+  return {
+    apiClient: crossRepoClient,
     owner,
     repo,
     branch,
     filePath,
     commitMessage,
-    replace(oldContent) {
+    replace(oldContent: string) {
       return replaceFields(oldContent, replacements)
     },
-  })
-  console.log(createdUrl)
+  }
 }
