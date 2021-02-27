@@ -2,7 +2,7 @@ import { getInput } from '@actions/core'
 import type { API } from './api'
 import editGitHubBlob from './edit-github-blob'
 import { Options as EditOptions } from './edit-github-blob'
-import { replaceFields } from './replace-formula-fields'
+import { removeRevisionLine, replaceFields } from './replace-formula-fields'
 import calculateDownloadChecksum from './calculate-download-checksum'
 import { context } from '@actions/github'
 
@@ -107,7 +107,7 @@ export async function prepareEdit(
     filePath,
     commitMessage,
     replace(oldContent: string) {
-      return replaceFields(oldContent, replacements)
+      return removeRevisionLine(replaceFields(oldContent, replacements))
     },
   }
 }

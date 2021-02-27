@@ -39,3 +39,7 @@ export function replaceFields(
   }
   return newContent
 }
+
+export function removeRevisionLine(oldContent: string): string {
+  return oldContent.replace(/^[ \t]*revision \d+ *\r?\n/m, '')
+}
