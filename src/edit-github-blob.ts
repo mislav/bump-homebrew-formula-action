@@ -20,7 +20,7 @@ async function retry<T>(
   }
 }
 
-type Options = {
+export type Options = {
   owner: string
   repo: string
   filePath: string
@@ -47,12 +47,15 @@ export default async function (params: Options): Promise<string> {
     branch: baseBranch,
   })
 
-  const needsFork = !repoRes.data.permissions.push
+  const needsFork = !repoRes.data.permissions?.push
   if (needsFork) {
-    const forkRes = await api.repos.createFork(baseRepo)
+    const res = await Promise.all([
+      api.repos.createFork(baseRepo),
+      api.users.getAuthenticated(),
+    ])
     headRepo = {
-      owner: forkRes.data.owner.login,
-      repo: forkRes.data.name,
+      owner: res[1].data.login,
+      repo: baseRepo.repo,
     }
   }
 

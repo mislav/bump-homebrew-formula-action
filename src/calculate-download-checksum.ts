@@ -39,10 +39,11 @@ async function resolveDownload(api: API, url: URL): Promise<URL> {
     )
     if (archive != null) {
       const [, owner, repo, ref, ext] = archive
-      const res = await api.repos.downloadArchive({
+      const res = await (ext == '.zip'
+        ? api.repos.downloadZipballArchive
+        : api.repos.downloadTarballArchive)({
         owner,
         repo,
-        archive_format: ext == '.zip' ? 'zipball' : 'tarball',
         ref,
         request: {
           redirect: 'manual',
