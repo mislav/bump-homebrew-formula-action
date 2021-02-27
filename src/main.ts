@@ -29,7 +29,11 @@ export default async function (api: (token: string) => API): Promise<void> {
     process.env.GITHUB_TOKEN || process.env.COMMITTER_TOKEN || ''
   const externalToken = process.env.COMMITTER_TOKEN || ''
 
-  const options = await prepareEdit(context, api(internalToken), api(externalToken))
+  const options = await prepareEdit(
+    context,
+    api(internalToken),
+    api(externalToken)
+  )
   const createdUrl = await editGitHubBlob(options)
   console.log(createdUrl)
 }
@@ -43,16 +47,22 @@ type Context = {
   }
 }
 
-export async function prepareEdit(ctx: Context, sameRepoClient: API, crossRepoClient: API): Promise<EditOptions> {
-  const tagName = getInput('tag-name') || ((ref) => {
-    if (!ref.startsWith('refs/tags/')) throw `invalid ref: ${ref}`
-    return ref.replace('refs/tags/', '')
-  })(ctx.ref)
+export async function prepareEdit(
+  ctx: Context,
+  sameRepoClient: API,
+  crossRepoClient: API
+): Promise<EditOptions> {
+  const tagName =
+    getInput('tag-name') ||
+    ((ref) => {
+      if (!ref.startsWith('refs/tags/')) throw `invalid ref: ${ref}`
+      return ref.replace('refs/tags/', '')
+    })(ctx.ref)
 
   const [owner, repo] = getInput('homebrew-tap', { required: true }).split('/')
   const formulaName = getInput('formula-name') || ctx.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
-  const filePath = `Formula/${formulaName}.rb`
+  const filePath = getInput('formula-path') || `Formula/${formulaName}.rb`
   const version = tagName.replace(/^v(\d)/, '$1')
   const downloadUrl =
     getInput('download-url') ||
@@ -64,16 +74,19 @@ export async function prepareEdit(ctx: Context, sameRepoClient: API, crossRepoCl
   replacements.set('url', downloadUrl)
   if (downloadUrl.endsWith('.git')) {
     replacements.set('tag', tagName)
-    replacements.set('revision', await (async () => {
-      if (ctx.ref == `refs/tags/${tagName}`) return ctx.sha
-      else {
-        const res = await sameRepoClient.git.getRef({
-          ...ctx.repo,
-          ref: `tags/${tagName}`
-        })
-        return res.data.object.sha
-      }
-    })())
+    replacements.set(
+      'revision',
+      await (async () => {
+        if (ctx.ref == `refs/tags/${tagName}`) return ctx.sha
+        else {
+          const res = await sameRepoClient.git.getRef({
+            ...ctx.repo,
+            ref: `tags/${tagName}`,
+          })
+          return res.data.object.sha
+        }
+      })()
+    )
   } else {
     replacements.set(
       'sha256',
