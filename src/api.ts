@@ -9,9 +9,9 @@ const GitHub = Octokit.plugin(restEndpointMethods, requestLog).defaults({
 
 export type API = InstanceType<typeof GitHub>
 
-export default function (token: string, options?: {fetch?: any}): API {
+export default function (token: string, options?: { fetch?: any }): API {
   return new GitHub({
-    request: {fetch: options?.fetch},
+    request: { fetch: options && options.fetch },
     auth: `token ${token}`,
     log: {
       info(msg: string) {
