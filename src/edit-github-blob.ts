@@ -47,7 +47,8 @@ export default async function (params: Options): Promise<string> {
     branch: baseBranch,
   })
 
-  const needsFork = !repoRes.data.permissions?.push
+  const needsFork =
+    repoRes.data.permissions == null || !repoRes.data.permissions.push
   if (needsFork) {
     const res = await Promise.all([
       api.repos.createFork(baseRepo),
