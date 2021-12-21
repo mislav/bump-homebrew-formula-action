@@ -28,6 +28,7 @@ export type Options = {
   apiClient: API
   replace: (oldContent: string) => string
   commitMessage?: string
+  makePR?: boolean
 }
 
 export default async function (params: Options): Promise<string> {
@@ -37,7 +38,7 @@ export default async function (params: Options): Promise<string> {
   }
   let headRepo = baseRepo
   const filePath = params.filePath
-  const api = params.apiClient
+  const api = params.apiClient.rest
 
   const repoRes = await api.repos.get(baseRepo)
   const baseBranch = params.branch ? params.branch : repoRes.data.default_branch
@@ -60,13 +61,17 @@ export default async function (params: Options): Promise<string> {
     }
   }
 
-  const needsPr = needsFork || branchRes.data.protected
-  if (needsPr) {
+  const needsBranch =
+    needsFork || branchRes.data.protected || params.makePR === true
+  if (needsBranch) {
     const timestamp = Math.round(Date.now() / 1000)
     headBranch = `update-${basename(filePath)}-${timestamp}`
-  }
-
-  if (needsPr) {
+    if (needsFork) {
+      await api.repos.mergeUpstream({
+        ...headRepo,
+        branch: repoRes.data.default_branch,
+      })
+    }
     await retry(needsFork ? 6 : 0, 5000, async () => {
       await api.git.createRef({
         ...headRepo,
@@ -106,7 +111,7 @@ export default async function (params: Options): Promise<string> {
     branch: headBranch,
   })
 
-  if (needsPr) {
+  if (needsBranch && params.makePR !== false) {
     const parts = commitMessage.split('\n\n')
     const title = parts[0]
     const body = parts.slice(1).join('\n\n')
@@ -120,6 +125,6 @@ export default async function (params: Options): Promise<string> {
     })
     return prRes.data.html_url
   } else {
-    return commitRes.data.commit.html_url
+    return commitRes.data.commit.html_url || ''
   }
 }

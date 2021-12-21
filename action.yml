@@ -13,11 +13,15 @@ inputs:
     description: The git tag name to bump the formula to (defaults to the currently pushed tag)
   download-url:
     description: The package download URL for the Homebrew formula (defaults to the release tarball)
+  download-sha256:
+    description: The SHA256 checksum of the archive at download-url (defaults to calculating it)
   homebrew-tap:
     description: The repository where the formula should be updated
     default: Homebrew/homebrew-core
   base-branch:
     description: The branch name in the homebrew-tap repository where the formula should be updated
+  create-pullrequest:
+    description: Set to a boolean value to either force or prohibit making a pull request to homebrew-tap
   commit-message:
     description: The git commit message template to use when updating the formula
     default: |

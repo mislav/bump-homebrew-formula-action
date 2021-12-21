@@ -79,11 +79,18 @@ archive for this release.
 
   Defaults to `https://github.com/OWNER/REPO/archive/<tag-name>.tar.gz`
 
+* `download-sha256`: the SHA256 checksum of the archive at `download-url`.
+  Defaults to calculating the checksum by fetching the URL.
+
 * `homebrew-tap`: the repository where the formula should be updated. Defaults
   to `Homebrew/homebrew-core`.
 
 * `base-branch`: the branch name in the `homebrew-tap` repository where the
   formula should be updated. Defaults to the main branch.
+
+* `create-pullrequest`: a boolean value to either force or prohibit submitting
+  a pull request to `homebrew-tap`. Defaults to false if `COMMITTER_TOKEN` has
+  the privileges to directly push to `base-branch` in `homebrew-tap`.
 
 * `commit-message`: the git commit message template to use when updating the
   formula. The following placeholders be expanded:
@@ -146,6 +153,7 @@ If the token has push access, but the default branch of the tap repo is
 protected, a pull request will be opened from a new branch in the same repo.
 
 Otherwise, the formula will be edited via a direct push to the default branch.
+This can be overriden by setting `create-pullrequest`.
 
 
 ## Manual trigger

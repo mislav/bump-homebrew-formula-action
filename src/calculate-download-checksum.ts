@@ -32,8 +32,9 @@ function stream(
   })
 }
 
-async function resolveDownload(api: API, url: URL): Promise<URL> {
+async function resolveDownload(apiClient: API, url: URL): Promise<URL> {
   if (url.hostname == 'github.com') {
+    const api = apiClient.rest
     const archive = url.pathname.match(
       /^\/([^/]+)\/([^/]+)\/archive\/([^/]+)(\.tar\.gz|\.zip)$/
     )
@@ -66,7 +67,7 @@ async function resolveDownload(api: API, url: URL): Promise<URL> {
       if (asset == null) {
         throw new Error(`could not find asset '${path}' in '${tag}' release`)
       }
-      const assetRes = await api.request(asset.url, {
+      const assetRes = await apiClient.request(asset.url, {
         headers: { accept: 'application/octet-stream' },
         request: { redirect: 'manual' },
       })
