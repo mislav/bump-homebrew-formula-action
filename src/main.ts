@@ -1,4 +1,4 @@
-import { getInput } from '@actions/core'
+import { getInput, getBooleanInput } from '@actions/core'
 import type { API } from './api'
 import editGitHubBlob from './edit-github-blob'
 import { Options as EditOptions } from './edit-github-blob'
@@ -69,6 +69,11 @@ export async function prepareEdit(
     tarballForRelease(ctx.repo.owner, ctx.repo.repo, tagName)
   const messageTemplate = getInput('commit-message', { required: true })
 
+  var makePR: boolean | undefined
+  if (getInput('create-pullrequest')) {
+    makePR = getBooleanInput('create-pullrequest')
+  }
+
   const replacements = new Map<string, string>()
   replacements.set('version', version)
   replacements.set('url', downloadUrl)
@@ -79,7 +84,7 @@ export async function prepareEdit(
       await (async () => {
         if (ctx.ref == `refs/tags/${tagName}`) return ctx.sha
         else {
-          const res = await sameRepoClient.git.getRef({
+          const res = await sameRepoClient.rest.git.getRef({
             ...ctx.repo,
             ref: `tags/${tagName}`,
           })
@@ -90,7 +95,8 @@ export async function prepareEdit(
   } else {
     replacements.set(
       'sha256',
-      await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256')
+      getInput('download-sha256') ||
+        (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
     )
   }
 
@@ -106,6 +112,7 @@ export async function prepareEdit(
     branch,
     filePath,
     commitMessage,
+    makePR,
     replace(oldContent: string) {
       return removeRevisionLine(replaceFields(oldContent, replacements))
     },
