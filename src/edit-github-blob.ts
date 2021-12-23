@@ -1,4 +1,5 @@
 import type { API } from './api'
+import { RequestError } from '@octokit/request-error'
 import { basename } from 'path'
 
 async function retry<T>(
@@ -67,10 +68,18 @@ export default async function (params: Options): Promise<string> {
     const timestamp = Math.round(Date.now() / 1000)
     headBranch = `update-${basename(filePath)}-${timestamp}`
     if (needsFork) {
-      await api.repos.mergeUpstream({
-        ...headRepo,
-        branch: repoRes.data.default_branch,
-      })
+      try {
+        await api.repos.mergeUpstream({
+          ...headRepo,
+          branch: repoRes.data.default_branch,
+        })
+      } catch (err) {
+        if (err instanceof RequestError && err.status === 409) {
+          // ignore
+        } else {
+          throw err
+        }
+      }
     }
     await retry(needsFork ? 6 : 0, 5000, async () => {
       await api.git.createRef({
