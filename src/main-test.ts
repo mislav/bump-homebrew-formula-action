@@ -54,7 +54,7 @@ test('prepareEdit()', async (t) => {
     }
     throw url
   }
-  const apiClient = api('ATOKEN', { fetch: stubbedFetch })
+  const apiClient = api('ATOKEN', { fetch: stubbedFetch, logRequests: false })
 
   const opts = await prepareEdit(ctx, apiClient, apiClient)
   t.is(opts.owner, 'Homebrew')
