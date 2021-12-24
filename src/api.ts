@@ -18,7 +18,7 @@ export default function (
     auth: `token ${token}`,
     log: {
       info(msg: string) {
-        if (options?.logRequests === false) return
+        if (options && options.logRequests === false) return
         return console.info(msg)
       },
       debug(msg: string) {
