@@ -17,11 +17,36 @@ test('commitForRelease()', (t) => {
     'chore(test formula): version {{version}}'
   )
   t.is(
+    commitForRelease('{formulaName} {version}', {
+      formulaName: 'test formula',
+      version: 'v1.2.3',
+    }),
+    '{formulaName} {version}'
+  )
+  t.is(
     commitForRelease('chore({{formulaName}}): upgrade to version {{version}}', {
       formulaName: 'test formula',
       version: 'v1.2.3',
     }),
     'chore(test formula): upgrade to version v1.2.3'
+  )
+  t.is(
+    commitForRelease(
+      '{{formulaName}} {{version}}: upgrade {{formulaName}} to version {{version}}',
+      {
+        formulaName: 'test formula',
+        version: 'v1.2.3',
+      }
+    ),
+    'test formula v1.2.3: upgrade test formula to version v1.2.3'
+  )
+  t.is(
+    commitForRelease('{{constructor}}{{__proto__}}', {}),
+    '{{constructor}}{{__proto__}}'
+  )
+  t.is(
+    commitForRelease('{{version}}', { version: 'v{{version}}' }),
+    'v{{version}}'
   )
 })
 
