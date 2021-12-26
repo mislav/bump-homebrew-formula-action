@@ -18,9 +18,14 @@ export function commitForRelease(
   messageTemplate: string,
   params: { [key: string]: string } = {}
 ): string {
-  return Object.keys(params).reduce(
-    (currentMessage, tag) => currentMessage.replace(`{{${tag}}}`, params[tag]),
-    messageTemplate
+  return messageTemplate.replace(
+    /\{\{(\w+)\}\}/g,
+    (m: string, key: string): string => {
+      if (Object.hasOwnProperty.call(params, key)) {
+        return params[key]
+      }
+      return m
+    }
   )
 }
 
@@ -60,6 +65,12 @@ export async function prepareEdit(
     })(ctx.ref)
 
   const [owner, repo] = getInput('homebrew-tap', { required: true }).split('/')
+  let pushTo: { owner: string; repo: string } | undefined
+  const pushToSpec = getInput('push-to')
+  if (pushToSpec) {
+    const [pushToOwner, pushToRepo] = pushToSpec.split('/')
+    pushTo = { owner: pushToOwner, repo: pushToRepo }
+  }
   const formulaName = getInput('formula-name') || ctx.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
   const filePath = getInput('formula-path') || `Formula/${formulaName}.rb`
@@ -69,7 +80,7 @@ export async function prepareEdit(
     tarballForRelease(ctx.repo.owner, ctx.repo.repo, tagName)
   const messageTemplate = getInput('commit-message', { required: true })
 
-  var makePR: boolean | undefined
+  let makePR: boolean | undefined
   if (getInput('create-pullrequest')) {
     makePR = getBooleanInput('create-pullrequest')
   }
@@ -112,6 +123,7 @@ export async function prepareEdit(
     branch,
     filePath,
     commitMessage,
+    pushTo,
     makePR,
     replace(oldContent: string) {
       return removeRevisionLine(replaceFields(oldContent, replacements))

@@ -28,7 +28,8 @@ export function compare(v1: string, v2: string): -1 | 0 | 1 {
   return 0
 }
 
-const ghDownloadRE = /^https:\/\/github.com\/[^/]+\/[^/]+\/releases\/download\/([^/]+)/
+const ghDownloadRE =
+  /^https:\/\/github.com\/[^/]+\/[^/]+\/releases\/download\/([^/]+)/
 
 // TODO: https://github.com/Homebrew/brew/blob/675e38b5e4fe0290fa05f65af23c9a82d3e7cc76/Library/Homebrew/version.rb#L225-L363
 export function fromUrl(url: string): string {
