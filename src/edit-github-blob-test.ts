@@ -8,7 +8,7 @@ type fetchOptions = {
   body: string | null
 }
 
-function replyJSON(status: number, body: any): Promise<Response> {
+function replyJSON(status: number, body: unknown): Promise<Response> {
   return Promise.resolve(
     new Response(JSON.stringify(body), {
       status,
@@ -70,7 +70,7 @@ test('edit-github-blob direct push', async (t) => {
 })
 
 test('edit-github-blob via pull request', async (t) => {
-  var newBranchName: string
+  let newBranchName: string
   const stubbedFetch = function (url: string, options: fetchOptions) {
     function route(method: string, path: string): boolean {
       return (
@@ -149,7 +149,7 @@ test('edit-github-blob via pull request', async (t) => {
 })
 
 test('edit-github-blob with pushTo', async (t) => {
-  var newBranchName: string
+  let newBranchName: string
   const stubbedFetch = function (url: string, options: fetchOptions) {
     function route(method: string, path: string): boolean {
       return (

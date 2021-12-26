@@ -14,4 +14,9 @@ jobs:
           node-version: '12.x'
           cache: 'npm'
       - run: npm ci
-      - run: npm test
+      - name: Run tests
+        run: |
+          STATUS=0
+          npm test || STATUS=$?
+          npm run lint -- --max-warnings=0 || STATUS=$?
+          exit $STATUS
