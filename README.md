@@ -85,6 +85,8 @@ archive for this release.
 * `homebrew-tap`: the repository where the formula should be updated. Defaults
   to `Homebrew/homebrew-core`.
 
+* `push-to`: a specific fork of `homebrew-tap` where the edit should be pushed to. Defaults to creating or reusing a personal fork of the owner of COMMITTER_TOKEN.
+
 * `base-branch`: the branch name in the `homebrew-tap` repository where the
   formula should be updated. Defaults to the main branch.
 
