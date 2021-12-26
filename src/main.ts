@@ -18,9 +18,14 @@ export function commitForRelease(
   messageTemplate: string,
   params: { [key: string]: string } = {}
 ): string {
-  return Object.keys(params).reduce(
-    (currentMessage, tag) => currentMessage.replace(`{{${tag}}}`, params[tag]),
-    messageTemplate
+  return messageTemplate.replace(
+    /\{\{(\w+)\}\}/g,
+    (m: string, key: string): string => {
+      if (params.hasOwnProperty(key)) {
+        return params[key]
+      }
+      return m
+    }
   )
 }
 
