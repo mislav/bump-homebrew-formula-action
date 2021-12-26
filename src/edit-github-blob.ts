@@ -29,6 +29,10 @@ export type Options = {
   apiClient: API
   replace: (oldContent: string) => string
   commitMessage?: string
+  pushTo?: {
+    owner: string
+    repo: string
+  }
   makePR?: boolean
 }
 
@@ -50,8 +54,12 @@ export default async function (params: Options): Promise<string> {
   })
 
   const needsFork =
-    repoRes.data.permissions == null || !repoRes.data.permissions.push
-  if (needsFork) {
+    repoRes.data.permissions == null ||
+    !repoRes.data.permissions.push ||
+    params.pushTo != null
+  if (params.pushTo != null) {
+    headRepo = params.pushTo
+  } else if (needsFork) {
     const res = await Promise.all([
       api.repos.createFork(baseRepo),
       api.users.getAuthenticated(),

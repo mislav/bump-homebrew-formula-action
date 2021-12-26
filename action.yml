@@ -18,8 +18,10 @@ inputs:
   homebrew-tap:
     description: The repository where the formula should be updated
     default: Homebrew/homebrew-core
+  push-to:
+    description: An existing fork of the homebrew-tap repository where the edit should be pushed to (defaults to creating or reusing a personal fork)
   base-branch:
-    description: The branch name in the homebrew-tap repository where the formula should be updated
+    description: The branch name in the homebrew-tap repository to update the formula in
   create-pullrequest:
     description: Set to a boolean value to either force or prohibit making a pull request to homebrew-tap
   commit-message:

@@ -65,6 +65,12 @@ export async function prepareEdit(
     })(ctx.ref)
 
   const [owner, repo] = getInput('homebrew-tap', { required: true }).split('/')
+  var pushTo: { owner: string; repo: string } | undefined
+  const pushToSpec = getInput('push-to')
+  if (pushToSpec) {
+    const [pushToOwner, pushToRepo] = pushToSpec.split('/')
+    pushTo = { owner: pushToOwner, repo: pushToRepo }
+  }
   const formulaName = getInput('formula-name') || ctx.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
   const filePath = getInput('formula-path') || `Formula/${formulaName}.rb`
@@ -117,6 +123,7 @@ export async function prepareEdit(
     branch,
     filePath,
     commitMessage,
+    pushTo,
     makePR,
     replace(oldContent: string) {
       return removeRevisionLine(replaceFields(oldContent, replacements))
