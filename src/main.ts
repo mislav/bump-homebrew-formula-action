@@ -21,7 +21,7 @@ export function commitForRelease(
   return messageTemplate.replace(
     /\{\{(\w+)\}\}/g,
     (m: string, key: string): string => {
-      if (params.hasOwnProperty(key)) {
+      if (Object.hasOwnProperty.call(params, key)) {
         return params[key]
       }
       return m
@@ -65,7 +65,7 @@ export async function prepareEdit(
     })(ctx.ref)
 
   const [owner, repo] = getInput('homebrew-tap', { required: true }).split('/')
-  var pushTo: { owner: string; repo: string } | undefined
+  let pushTo: { owner: string; repo: string } | undefined
   const pushToSpec = getInput('push-to')
   if (pushToSpec) {
     const [pushToOwner, pushToRepo] = pushToSpec.split('/')
@@ -80,7 +80,7 @@ export async function prepareEdit(
     tarballForRelease(ctx.repo.owner, ctx.repo.repo, tagName)
   const messageTemplate = getInput('commit-message', { required: true })
 
-  var makePR: boolean | undefined
+  let makePR: boolean | undefined
   if (getInput('create-pullrequest')) {
     makePR = getBooleanInput('create-pullrequest')
   }
