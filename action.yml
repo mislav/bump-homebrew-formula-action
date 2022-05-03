@@ -1,9 +1,9 @@
 name: bump-homebrew-formula
-description: 'Bump Homebrew formula after a new release'
-author: '@mislav'
+description: "Bump Homebrew formula after a new release"
+author: "@mislav"
 runs:
-  using: node12
-  main: './lib/index.js'
+  using: node16
+  main: "./lib/index.js"
 inputs:
   formula-name:
     description: The name of the Homebrew formula (defaults to lower-cased repository name)
