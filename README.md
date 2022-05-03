@@ -12,7 +12,7 @@ jobs:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
     steps:
-      - uses: mislav/bump-homebrew-formula-action@v1
+      - uses: mislav/bump-homebrew-formula-action@v2
         with:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
           formula-name: my_formula
@@ -41,7 +41,7 @@ jobs:
         id: extract-version
         run: |
           printf "::set-output name=%s::%s\n" tag-name "${GITHUB_REF#refs/tags/}"
-      - uses: mislav/bump-homebrew-formula-action@v1
+      - uses: mislav/bump-homebrew-formula-action@v2
         if: "!contains(github.ref, '-')" # skip prereleases
         with:
           formula-name: my_formula
@@ -176,7 +176,7 @@ jobs:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
     steps:
-      - uses: mislav/bump-homebrew-formula-action@v1
+      - uses: mislav/bump-homebrew-formula-action@v2
         with:
           formula-name: my_formula
           tag-name: ${{ github.event.inputs.tag-name }}
