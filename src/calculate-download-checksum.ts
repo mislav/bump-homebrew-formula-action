@@ -35,12 +35,10 @@ function stream(
 async function resolveDownload(apiClient: API, url: URL): Promise<URL> {
   if (url.hostname == 'github.com') {
     const api = apiClient.rest
-    const archive = url.pathname.match(
-      /^\/([^/]+)\/([^/]+)\/archive\/([^/]+)(\.tar\.gz|\.zip)$/
-    )
+    const archive = parseArchiveUrl(url)
     if (archive != null) {
-      const [, owner, repo, ref, ext] = archive
-      const res = await (ext == '.zip'
+      const { owner, repo, ref } = archive
+      const res = await (archive.ext == '.zip'
         ? api.repos.downloadZipballArchive
         : api.repos.downloadTarballArchive)({
         owner,
@@ -57,15 +55,16 @@ async function resolveDownload(apiClient: API, url: URL): Promise<URL> {
       return new URL(loc.replace('/legacy.', '/'))
     }
 
-    const release = url.pathname.match(
-      /^\/([^/]+)\/([^/]+)\/releases\/download\/([^/]+)\/(.+)$/
-    )
-    if (release != null) {
-      const [, owner, repo, tag, path] = release
+    const download = parseReleaseDownloadUrl(url)
+    if (download != null) {
+      const { owner, repo } = download
+      const tag = download.tagname
       const res = await api.repos.getReleaseByTag({ owner, repo, tag })
-      const asset = res.data.assets.find((a) => a.name == path)
+      const asset = res.data.assets.find((a) => a.name == download.name)
       if (asset == null) {
-        throw new Error(`could not find asset '${path}' in '${tag}' release`)
+        throw new Error(
+          `could not find asset '${download.name}' in '${tag}' release`
+        )
       }
       const assetRes = await apiClient.request(asset.url, {
         headers: { accept: 'application/octet-stream' },
@@ -76,6 +75,55 @@ async function resolveDownload(apiClient: API, url: URL): Promise<URL> {
     }
   }
   return url
+}
+
+type archive = {
+  owner: string
+  repo: string
+  ref: string
+  ext: string
+}
+
+export function parseArchiveUrl(url: URL): archive | null {
+  const match = url.pathname.match(
+    /^\/([^/]+)\/([^/]+)\/archive\/(.+)(\.tar\.gz|\.zip)$/
+  )
+  if (match == null) {
+    return null
+  }
+  return {
+    owner: match[1],
+    repo: match[2],
+    ref: match[3],
+    ext: match[4],
+  }
+}
+
+type asset = {
+  owner: string
+  repo: string
+  tagname: string
+  name: string
+}
+
+export function parseReleaseDownloadUrl(url: URL): asset | null {
+  const match = url.pathname.match(
+    /^\/([^/]+)\/([^/]+)\/releases\/download\/(.+)$/
+  )
+  if (match == null) {
+    return null
+  }
+  const parts = match[3].split('/')
+  if (parts.length < 2) {
+    return null
+  }
+  const name = parts.pop() || ''
+  return {
+    owner: match[1],
+    repo: match[2],
+    tagname: decodeURIComponent(parts.join('/')),
+    name: name,
+  }
 }
 
 function log(url: URL): void {
