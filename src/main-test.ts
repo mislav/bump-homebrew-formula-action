@@ -1,7 +1,8 @@
 import test from 'ava'
+import sinon from 'sinon'
 import api from './api'
 import { commitForRelease, prepareEdit } from './main'
-import { Response } from 'node-fetch'
+import * as calculateDownloadChecksum from './calculate-download-checksum'
 
 test('commitForRelease()', (t) => {
   t.is(
@@ -63,22 +64,9 @@ test('prepareEdit()', async (t) => {
   process.env['INPUT_HOMEBREW-TAP'] = 'Homebrew/homebrew-core'
   process.env['INPUT_COMMIT-MESSAGE'] = 'Upgrade {{formulaName}} to {{version}}'
 
-  // FIXME: this tests results in a live HTTP request. Figure out how to stub the `stream()` method in
-  // calculate-download-checksum.
-  const stubbedFetch = function (url: string) {
-    if (url == 'https://api.github.com/repos/OWNER/REPO/tarball/v0.8.2') {
-      return Promise.resolve(
-        new Response('', {
-          status: 301,
-          headers: {
-            Location:
-              'https://github.com/mislav/bump-homebrew-formula-action/archive/v1.9.tar.gz',
-          },
-        })
-      )
-    }
-    throw url
-  }
+  sinon.stub(calculateDownloadChecksum, 'default').resolves('NEWSHA')
+  const stubbedFetch = sinon.stub()
+
   const apiClient = api('ATOKEN', { fetch: stubbedFetch, logRequests: false })
 
   const opts = await prepareEdit(ctx, apiClient, apiClient)
@@ -101,9 +89,56 @@ test('prepareEdit()', async (t) => {
     `
     class MyProgram < Formula
       url "https://github.com/OWNER/REPO/archive/v0.8.2.tar.gz"
-      sha256 "c036fbc44901b266f6d408d6ca36ba56f63c14cc97994a935fb9741b55edee83"
+      sha256 "NEWSHA"
       head "git://example.com/repo.git",
         revision: "GITSHA"
+    end
+  `,
+    opts.replace(oldFormula)
+  )
+})
+
+test('prepareEdit() with unique tag-name', async (t) => {
+  const ctx = {
+    sha: 'TAGSHA',
+    ref: 'refs/tags/@scope/package@1.1.0',
+    repo: {
+      owner: 'OWNER',
+      repo: 'REPO',
+    },
+  }
+
+  process.env['INPUT_HOMEBREW-TAP'] = 'Homebrew/homebrew-core'
+  process.env['INPUT_COMMIT-MESSAGE'] = 'Upgrade {{formulaName}} to {{version}}'
+  process.env['INPUT_TAG-NAME'] = '@scope/package@1.1.0'
+  process.env['INPUT_VERSION-PATTERN'] = '@scope/package@(.*)'
+  process.env['INPUT_DOWNLOAD-URL'] = 'NEWURL.git'
+
+  const fetchStub = sinon
+    .stub()
+    .resolves({ data: { object: { sha: 'NEWSHA' } } })
+  const apiClient = api('ATOKEN', { fetch: fetchStub, logRequests: false })
+
+  const opts = await prepareEdit(ctx, apiClient, apiClient)
+  t.is(opts.owner, 'Homebrew')
+  t.is(opts.repo, 'homebrew-core')
+  t.is(opts.branch, '')
+  t.is(opts.filePath, 'Formula/repo.rb')
+  t.is(opts.commitMessage, 'Upgrade repo to 1.1.0')
+
+  const oldFormula = `
+    class MyProgram < Formula
+      url "OLDURL.git"
+      sha256 "OLDSHA"
+      version "1.0.0"
+    end
+  `
+  t.is(
+    `
+    class MyProgram < Formula
+      url "NEWURL.git"
+      sha256 "NEWSHA"
+      version "1.1.0"
     end
   `,
     opts.replace(oldFormula)

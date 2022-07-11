@@ -74,7 +74,10 @@ export async function prepareEdit(
   const formulaName = getInput('formula-name') || ctx.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
   const filePath = getInput('formula-path') || `Formula/${formulaName}.rb`
-  const version = tagName.replace(/^v(\d)/, '$1')
+
+  const versionPattern = getInput('version-pattern') || /^v(\d)/
+  const version = tagName.replace(new RegExp(versionPattern), '$1')
+
   const downloadUrl =
     getInput('download-url') ||
     tarballForRelease(ctx.repo.owner, ctx.repo.repo, tagName)
