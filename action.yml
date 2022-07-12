@@ -11,6 +11,9 @@ inputs:
     description: The path to the Homebrew formula file (defaults to `Formula/<formula-name>.rb`)
   tag-name:
     description: The git tag name to bump the formula to (defaults to the currently pushed tag)
+  tag-prefix:
+    description: A pattern that matches the version prefix on the tag. This can be in Regex format or exact string. Used to filter the tag-names into comparable versions.
+    default: ^v
   download-url:
     description: The package download URL for the Homebrew formula (defaults to the release tarball)
   download-sha256:

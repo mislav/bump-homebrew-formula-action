@@ -75,6 +75,16 @@ archive for this release.
 * `tag-name`: the git tag name to bump the formula to. Defaults to the
   currently pushed tag.
 
+* `tag-prefix`: a pattern that matches the version prefix on the tag. This can be in Regex format or exact string. Used to filter the tag-names into comparable versions.
+
+  Examples of less common tag prefixing that may benefit from this input:
+  | Tag Format       | Description                                                           |
+  | ---------------- | --------------------------------------------------------------------- |
+  | `project-v1.0.0` | [Cargo release](https://github.com/crate-ci/cargo-release) workspaces |
+  | `package@1.0.0`  | [Changesets](https://github.com/changesets/changesets) monorepos      |
+  
+  Defaults to `^v`
+
 * `download-url`: the package download URL for the Homebrew formula.
 
   Defaults to `https://github.com/OWNER/REPO/archive/<tag-name>.tar.gz`

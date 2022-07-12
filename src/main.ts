@@ -5,6 +5,7 @@ import { Options as EditOptions } from './edit-github-blob'
 import { removeRevisionLine, replaceFields } from './replace-formula-fields'
 import calculateDownloadChecksum from './calculate-download-checksum'
 import { context } from '@actions/github'
+import { filterTagPrefix } from './version'
 
 function tarballForRelease(
   owner: string,
@@ -75,8 +76,7 @@ export async function prepareEdit(
   const branch = getInput('base-branch')
   const filePath = getInput('formula-path') || `Formula/${formulaName}.rb`
 
-  const versionPattern = getInput('version-pattern') || /^v(\d)/
-  const version = tagName.replace(new RegExp(versionPattern), '$1')
+  const version = filterTagPrefix(tagName)
 
   const downloadUrl =
     getInput('download-url') ||

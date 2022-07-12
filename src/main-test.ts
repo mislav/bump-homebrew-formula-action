@@ -4,6 +4,11 @@ import api from './api'
 import { commitForRelease, prepareEdit } from './main'
 import * as calculateDownloadChecksum from './calculate-download-checksum'
 
+const calculateDownloadChecksumStub = sinon.stub(
+  calculateDownloadChecksum,
+  'default'
+)
+
 test('commitForRelease()', (t) => {
   t.is(
     commitForRelease('This is a fixed commit message', {
@@ -64,7 +69,7 @@ test('prepareEdit()', async (t) => {
   process.env['INPUT_HOMEBREW-TAP'] = 'Homebrew/homebrew-core'
   process.env['INPUT_COMMIT-MESSAGE'] = 'Upgrade {{formulaName}} to {{version}}'
 
-  sinon.stub(calculateDownloadChecksum, 'default').resolves('NEWSHA')
+  calculateDownloadChecksumStub.resolves('NEWSHA')
   const stubbedFetch = sinon.stub()
 
   const apiClient = api('ATOKEN', { fetch: stubbedFetch, logRequests: false })
@@ -78,7 +83,7 @@ test('prepareEdit()', async (t) => {
 
   const oldFormula = `
     class MyProgram < Formula
-      url "OLDURL"
+      url "https://github.com/OWNER/REPO/archive/v0.8.1.tar.gz"
       sha256 "OLDSHA"
       revision 12
       head "git://example.com/repo.git",
@@ -101,23 +106,21 @@ test('prepareEdit()', async (t) => {
 test('prepareEdit() with unique tag-name', async (t) => {
   const ctx = {
     sha: 'TAGSHA',
-    ref: 'refs/tags/@scope/package@1.1.0',
+    ref: 'refs/heads/main',
     repo: {
       owner: 'OWNER',
       repo: 'REPO',
     },
   }
 
-  process.env['INPUT_HOMEBREW-TAP'] = 'Homebrew/homebrew-core'
-  process.env['INPUT_COMMIT-MESSAGE'] = 'Upgrade {{formulaName}} to {{version}}'
-  process.env['INPUT_TAG-NAME'] = '@scope/package@1.1.0'
-  process.env['INPUT_VERSION-PATTERN'] = '@scope/package@(.*)'
-  process.env['INPUT_DOWNLOAD-URL'] = 'NEWURL.git'
+  process.env['INPUT_DOWNLOAD-URL'] =
+    'https://github.com/me/myproject/releases/download/@scope/package@1.1.0/file.tgz'
 
-  const fetchStub = sinon
-    .stub()
-    .resolves({ data: { object: { sha: 'NEWSHA' } } })
-  const apiClient = api('ATOKEN', { fetch: fetchStub, logRequests: false })
+  process.env['INPUT_TAG-NAME'] = '@scope/package@1.1.0'
+  process.env['INPUT_TAG-PREFIX'] = '@scope/package@'
+
+  calculateDownloadChecksumStub.resolves('NEWSHA')
+  const apiClient = api('ATOKEN', { fetch: sinon.stub(), logRequests: false })
 
   const opts = await prepareEdit(ctx, apiClient, apiClient)
   t.is(opts.owner, 'Homebrew')
@@ -128,7 +131,7 @@ test('prepareEdit() with unique tag-name', async (t) => {
 
   const oldFormula = `
     class MyProgram < Formula
-      url "OLDURL.git"
+      url "https://github.com/me/myproject/releases/download/@scope/package@1.0.0/file.tgz"
       sha256 "OLDSHA"
       version "1.0.0"
     end
@@ -136,7 +139,7 @@ test('prepareEdit() with unique tag-name', async (t) => {
   t.is(
     `
     class MyProgram < Formula
-      url "NEWURL.git"
+      url "https://github.com/me/myproject/releases/download/@scope/package@1.1.0/file.tgz"
       sha256 "NEWSHA"
       version "1.1.0"
     end

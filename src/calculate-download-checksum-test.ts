@@ -68,6 +68,15 @@ test('calculate-download-checksum parseReleaseDownloadUrl', (t) => {
         name: 'smartthings-macos.tar.gz',
       },
     },
+    {
+      url: 'https://github.com/owner/repo/releases/download/v1.0.0-beta.9/file.tar.gz',
+      wants: {
+        owner: 'owner',
+        repo: 'repo',
+        tagname: 'v1.0.0-beta.9',
+        name: 'file.tar.gz',
+      },
+    },
   ]
   tests.forEach((tt) => {
     const asset = parseReleaseDownloadUrl(new URL(tt.url))
