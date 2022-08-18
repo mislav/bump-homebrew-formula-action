@@ -6,7 +6,7 @@
     "test": "tsc --sourceMap && ava"
   },
   "dependencies": {
-    "@actions/core": "^1.6.0",
+    "@actions/core": "^1.9.1",
     "@actions/github": "^5.0.0",
     "@octokit/core": "^3.5.1",
     "@octokit/plugin-request-log": "^1.0.3",
