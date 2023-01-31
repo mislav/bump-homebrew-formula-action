@@ -148,7 +148,7 @@ test('edit-github-blob via pull request', async (t) => {
   t.is('https://github.com/OWNER/REPO/pull/123', url)
 })
 
-test('edit-github-blob with pushTo', async (t) => {
+test('edit-github-blob with pushTo a fork', async (t) => {
   let newBranchName: string
   const stubbedFetch = function (url: string, options: fetchOptions) {
     function route(method: string, path: string): boolean {
@@ -222,4 +222,55 @@ test('edit-github-blob with pushTo', async (t) => {
     replace: (oldContent) => oldContent.toUpperCase(),
   })
   t.is('https://github.com/OWNER/REPO/pull/123', url)
+})
+
+test('edit-github-blob with pushTo the base repo', async (t) => {
+  const stubbedFetch = function (url: string, options: fetchOptions) {
+    function route(method: string, path: string): boolean {
+      return (
+        method.toUpperCase() === options.method.toUpperCase() &&
+        `https://api.github.com/${path}` === url
+      )
+    }
+
+    if (route('GET', 'repos/OWNER/REPO')) {
+      return replyJSON(200, {
+        default_branch: 'main',
+        permissions: { push: false },
+      })
+    } else if (route('GET', 'repos/OWNER/REPO/branches/main')) {
+      return replyJSON(200, {
+        commit: { sha: 'COMMITSHA' },
+        protected: false,
+      })
+    } else if (
+      route('GET', `repos/OWNER/REPO/contents/formula%2Ftest.rb?ref=main`)
+    ) {
+      return replyJSON(200, {
+        content: Buffer.from(`old content`).toString('base64'),
+      })
+    } else if (route('PUT', 'repos/OWNER/REPO/contents/formula%2Ftest.rb')) {
+      const payload = JSON.parse(options.body || '')
+      t.is(payload.branch, 'main')
+      t.is(payload.message, 'Update formula/test.rb')
+      t.is(
+        Buffer.from(payload.content, 'base64').toString('utf8'),
+        'OLD CONTENT'
+      )
+      return replyJSON(200, {
+        commit: { html_url: 'https://github.com/OWNER/REPO/commit/NEWSHA' },
+      })
+    }
+    throw `not stubbed: ${options.method} ${url}`
+  }
+
+  const url = await editGithubBlob({
+    apiClient: api('ATOKEN', { fetch: stubbedFetch, logRequests: false }),
+    owner: 'OWNER',
+    repo: 'REPO',
+    pushTo: { owner: 'OWNER', repo: 'REPO' },
+    filePath: 'formula/test.rb',
+    replace: (oldContent) => oldContent.toUpperCase(),
+  })
+  t.is(url, 'https://github.com/OWNER/REPO/commit/NEWSHA')
 })

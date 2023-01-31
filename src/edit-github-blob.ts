@@ -41,25 +41,29 @@ export default async function (params: Options): Promise<string> {
     owner: params.owner,
     repo: params.repo,
   }
-  let headRepo = baseRepo
+  let headRepo = params.pushTo == null ? baseRepo : params.pushTo
   const filePath = params.filePath
   const api = params.apiClient.rest
 
   const repoRes = await api.repos.get(baseRepo)
+  const makeFork =
+    params.pushTo == null &&
+    (repoRes.data.permissions == null || !repoRes.data.permissions.push)
+  const inFork =
+    makeFork ||
+    `${baseRepo.owner}/${baseRepo.repo}`.toLowerCase() !=
+      `${headRepo.owner}/${headRepo.repo}`.toLowerCase()
+
   const baseBranch = params.branch ? params.branch : repoRes.data.default_branch
   let headBranch = baseBranch
   const branchRes = await api.repos.getBranch({
     ...baseRepo,
     branch: baseBranch,
   })
+  const needsBranch =
+    inFork || branchRes.data.protected || params.makePR === true
 
-  const needsFork =
-    repoRes.data.permissions == null ||
-    !repoRes.data.permissions.push ||
-    params.pushTo != null
-  if (params.pushTo != null) {
-    headRepo = params.pushTo
-  } else if (needsFork) {
+  if (makeFork) {
     const res = await Promise.all([
       api.repos.createFork(baseRepo),
       api.users.getAuthenticated(),
@@ -70,12 +74,10 @@ export default async function (params: Options): Promise<string> {
     }
   }
 
-  const needsBranch =
-    needsFork || branchRes.data.protected || params.makePR === true
   if (needsBranch) {
     const timestamp = Math.round(Date.now() / 1000)
     headBranch = `update-${basename(filePath)}-${timestamp}`
-    if (needsFork) {
+    if (inFork) {
       try {
         await api.repos.mergeUpstream({
           ...headRepo,
@@ -89,7 +91,7 @@ export default async function (params: Options): Promise<string> {
         }
       }
     }
-    await retry(needsFork ? 6 : 0, 5000, async () => {
+    await retry(makeFork ? 6 : 0, 5000, async () => {
       await api.git.createRef({
         ...headRepo,
         ref: `refs/heads/${headBranch}`,
