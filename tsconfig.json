@@ -2,9 +2,11 @@
   "compilerOptions": {
     "outDir": "./lib",
     "rootDir": "./src",
-    "module": "commonjs",
-    "target": "esnext",
-    "lib": ["es2015", "es2017", "es2020.string"],
+    "module": "node16",
+    "target": "es2021",
+    "lib": [
+      "es2021"
+    ],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,8 +14,13 @@
     "noUnusedParameters": true,
     "noImplicitAny": true,
     "removeComments": false,
-    "preserveConstEnums": true
+    "preserveConstEnums": true,
+    "moduleResolution": "node"
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"],
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
 }

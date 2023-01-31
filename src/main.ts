@@ -70,6 +70,15 @@ export async function prepareEdit(
   if (pushToSpec) {
     const [pushToOwner, pushToRepo] = pushToSpec.split('/')
     pushTo = { owner: pushToOwner, repo: pushToRepo }
+  } else if (
+    owner.toLowerCase() == context.repo.owner.toLowerCase() &&
+    repo.toLowerCase() == context.repo.repo.toLowerCase()
+  ) {
+    // If the homebrew-tap to update is the same repository that is running the Actions workflow,
+    // explicitly set the same repository as the push-to target to skip any attempt of making a
+    // fork of the repository. This is because a generated GITHUB_TOKEN would still appear as it
+    // doesn't have permissions to push to homebrew-tap, even though it does.
+    pushTo = context.repo
   }
   const formulaName = getInput('formula-name') || ctx.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
