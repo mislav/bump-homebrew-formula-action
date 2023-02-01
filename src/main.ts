@@ -117,7 +117,7 @@ export async function prepareEdit(
     replacements.set(
       'sha256',
       getInput('download-sha256') ||
-      (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
+        (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
     )
   }
 
@@ -136,9 +136,13 @@ export async function prepareEdit(
     pushTo,
     makePR,
     replace(oldContent: string) {
-      const newContent = removeRevisionLine(replaceFields(oldContent, replacements))
+      const newContent = removeRevisionLine(
+        replaceFields(oldContent, replacements)
+      )
       if (oldContent === newContent) {
-        throw new UpgradeError("The formula hasn't changed after applying the changes. Formula was already up-to-date.")
+        throw new UpgradeError(
+          "The formula hasn't changed after applying the changes. Formula was already up-to-date."
+        )
       }
       return newContent
     },

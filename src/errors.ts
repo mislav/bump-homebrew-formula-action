@@ -1,1 +1,1 @@
-export class UpgradeError extends Error { }
+export class UpgradeError extends Error {}

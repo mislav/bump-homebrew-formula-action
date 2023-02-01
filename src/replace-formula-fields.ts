@@ -10,12 +10,7 @@ export function replaceFields(
   for (const [field, value] of replacements) {
     newContent = newContent.replace(
       new RegExp(`^(\\s*)${field}((?::| *=>)? *)(['"])([^'"]+)\\3`, 'm'),
-      (
-        _: string,
-        indent: string,
-        sep: string,
-        q: string,
-      ): string => {
+      (_: string, indent: string, sep: string, q: string): string => {
         return `${indent}${field}${sep}${q}${escape(value, q)}${q}`
       }
     )
