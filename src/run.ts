@@ -1,6 +1,6 @@
 import { setFailed } from '@actions/core'
+import { UpgradeError } from './errors'
 import api from './api'
-import { UpgradeError } from './replace-formula-fields'
 import run from './main'
 
 run(api).catch((error) => {

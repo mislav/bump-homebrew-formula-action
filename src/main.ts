@@ -5,6 +5,7 @@ import { Options as EditOptions } from './edit-github-blob'
 import { removeRevisionLine, replaceFields } from './replace-formula-fields'
 import calculateDownloadChecksum from './calculate-download-checksum'
 import { context } from '@actions/github'
+import { UpgradeError } from './errors'
 
 function tarballForRelease(
   owner: string,
@@ -116,7 +117,7 @@ export async function prepareEdit(
     replacements.set(
       'sha256',
       getInput('download-sha256') ||
-        (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
+      (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
     )
   }
 
@@ -135,7 +136,11 @@ export async function prepareEdit(
     pushTo,
     makePR,
     replace(oldContent: string) {
-      return removeRevisionLine(replaceFields(oldContent, replacements))
+      const newContent = removeRevisionLine(replaceFields(oldContent, replacements))
+      if (oldContent === newContent) {
+        throw new UpgradeError("The formula hasn't changed after applying the changes. Formula was already up-to-date.")
+      }
+      return newContent
     },
   }
 }
