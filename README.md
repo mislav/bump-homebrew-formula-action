@@ -66,10 +66,12 @@ archive for this release.
 
 ## Action inputs
 
+Formula parameters:
+
 * `formula-name`: the name of the Homebrew formula to bump. Defaults to
   lower-cased repository name.
 
-* `formula-path`: the path to the Homebrew formula file to edit. Defaults to
+* `formula-path`: the relative path of the Homebrew formula file to edit within the `homebrew-tap` repository. Defaults to
   `Formula/<formula-name>.rb`.
 
 * `tag-name`: the git tag name to bump the formula to. Defaults to the
@@ -77,18 +79,20 @@ archive for this release.
 
 * `download-url`: the package download URL for the Homebrew formula.
 
-  Defaults to `https://github.com/OWNER/REPO/archive/<tag-name>.tar.gz`
+  Defaults to `https://github.com/OWNER/REPO/archive/<tag-name>.tar.gz`, where `OWNER/REPO` is the repository that is running the Actions workflow.
 
 * `download-sha256`: the SHA256 checksum of the archive at `download-url`.
-  Defaults to calculating the checksum by fetching the URL.
+  Defaults to calculating the checksum by fetching the archive at run time.
 
-* `homebrew-tap`: the repository where the formula should be updated. Defaults
+Repository parameters:
+
+* `homebrew-tap`: the full GitHub repository name (in the `NAME/OWNER` format) where the Homebrew formula should be updated. Defaults
   to `Homebrew/homebrew-core`.
 
 * `push-to`: a specific fork of `homebrew-tap` where the edit should be pushed to. Defaults to creating or reusing a personal fork of the owner of COMMITTER_TOKEN.
 
 * `base-branch`: the branch name in the `homebrew-tap` repository where the
-  formula should be updated. Defaults to the main branch.
+  formula should be updated. Defaults to the main branch of the repository.
 
 * `create-pullrequest`: a boolean value to either force or prohibit submitting
   a pull request to `homebrew-tap`. Defaults to false if `COMMITTER_TOKEN` has
