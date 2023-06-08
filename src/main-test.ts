@@ -60,7 +60,6 @@ test('prepareEdit()', async (t) => {
     },
   }
 
-  process.env['GITHUB_REPOSITORY'] = 'Homebrew/homebrew-core'
   process.env['INPUT_HOMEBREW-TAP'] = 'Homebrew/homebrew-core'
   process.env['INPUT_COMMIT-MESSAGE'] = 'Upgrade {{formulaName}} to {{version}}'
 
@@ -73,7 +72,7 @@ test('prepareEdit()', async (t) => {
           status: 301,
           headers: {
             Location:
-              'https://github.com/mislav/bump-homebrew-formula-action/archive/refs/tags/v1.9.tar.gz',
+              'https://github.com/mislav/bump-homebrew-formula-action/archive/v1.9.tar.gz',
           },
         })
       )
@@ -101,7 +100,7 @@ test('prepareEdit()', async (t) => {
   t.is(
     `
     class MyProgram < Formula
-      url "https://github.com/OWNER/REPO/archive/refs/tags/v0.8.2.tar.gz"
+      url "https://github.com/OWNER/REPO/archive/v0.8.2.tar.gz"
       sha256 "c036fbc44901b266f6d408d6ca36ba56f63c14cc97994a935fb9741b55edee83"
       head "git://example.com/repo.git",
         revision: "GITSHA"
