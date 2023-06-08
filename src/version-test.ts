@@ -3,7 +3,7 @@ import { fromUrl } from './version'
 
 test('fromUrl()', (t) => {
   t.is(
-    fromUrl('https://github.com/me/myproject/archive/v1.2.3.tar.gz'),
+    fromUrl('https://github.com/me/myproject/archive/refs/tags/v1.2.3.tar.gz'),
     'v1.2.3'
   )
   t.is(

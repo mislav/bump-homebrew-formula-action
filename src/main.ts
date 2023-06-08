@@ -11,7 +11,7 @@ function tarballForRelease(
   repo: string,
   tagName: string
 ): string {
-  return `https://github.com/${owner}/${repo}/archive/${tagName}.tar.gz`
+  return `https://github.com/${owner}/${repo}/archive/refs/tags/${tagName}.tar.gz`
 }
 
 export function commitForRelease(
@@ -116,7 +116,7 @@ export async function prepareEdit(
     replacements.set(
       'sha256',
       getInput('download-sha256') ||
-        (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
+      (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
     )
   }
 
