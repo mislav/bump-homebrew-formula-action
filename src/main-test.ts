@@ -60,6 +60,7 @@ test('prepareEdit()', async (t) => {
     },
   }
 
+  process.env['GITHUB_REPOSITORY'] = 'Homebrew/homebrew-core'
   process.env['INPUT_HOMEBREW-TAP'] = 'Homebrew/homebrew-core'
   process.env['INPUT_COMMIT-MESSAGE'] = 'Upgrade {{formulaName}} to {{version}}'
 
