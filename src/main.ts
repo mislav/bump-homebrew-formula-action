@@ -116,7 +116,7 @@ export async function prepareEdit(
     replacements.set(
       'sha256',
       getInput('download-sha256') ||
-      (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
+        (await calculateDownloadChecksum(sameRepoClient, downloadUrl, 'sha256'))
     )
   }
 
