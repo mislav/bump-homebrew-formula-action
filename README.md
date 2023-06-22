@@ -17,13 +17,13 @@ jobs:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
           formula-name: my_formula
         env:
+          # the personal access token should have "repo" & "workflow" scopes
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
 ```
 
 The `COMMITTER_TOKEN` secret is required because this action will want to write
-to an external repository. You can [generate a new PAT
-here](https://github.com/settings/tokens) and give it `public_repo` (or `repo`
-if the homebrew tap repository is private) scopes.
+to an external repository. You can [generate a new Personal Access Token (classic)
+here](https://github.com/settings/tokens) and give it `repo` and `workflow` scopes.
 
 Comprehensive usage example:
 
