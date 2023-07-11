@@ -42,7 +42,7 @@ jobs:
         run: |
           printf "::set-output name=%s::%s\n" tag-name "${GITHUB_REF#refs/tags/}"
       - uses: mislav/bump-homebrew-formula-action@v2
-        if: "!contains(github.ref, '-')" # skip prereleases
+        if: ${{ !contains(github.ref, '-') }} # skip prereleases
         with:
           formula-name: my_formula
           formula-path: Formula/my_formula.rb
