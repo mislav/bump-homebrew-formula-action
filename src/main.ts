@@ -82,7 +82,7 @@ export async function prepareEdit(
   }
   const formulaName = getInput('formula-name') || ctx.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
-  const filePath = getInput('formula-path') || `Formula/${formulaName}.rb`
+  const filePath = getInput('formula-path') || `Formula/${formulaName.charAt(0)}/${formulaName}.rb`
   const version = tagName.replace(/^v(\d)/, '$1')
   const downloadUrl =
     getInput('download-url') ||
