@@ -45,7 +45,7 @@ jobs:
         if: ${{ !contains(github.ref, '-') }} # skip prereleases
         with:
           formula-name: my_formula
-          formula-path: Formula/my_formula.rb
+          formula-path: Formula/m/my_formula.rb
           homebrew-tap: Homebrew/homebrew-core
           base-branch: master
           download-url: https://example.com/foo/${{ steps.extract-version.outputs.tag-name }}.tar.gz
@@ -72,7 +72,7 @@ Formula parameters:
   lower-cased repository name.
 
 * `formula-path`: the relative path of the Homebrew formula file to edit within the `homebrew-tap` repository. Defaults to
-  `Formula/<formula-name>.rb`.
+  `Formula/<letter>/<formula-name>.rb` for homebrew-core formulae and `Formula/<formula-name>.rb` otherwise.
 
 * `tag-name`: the git tag name to bump the formula to. Defaults to the
   currently pushed tag.
