@@ -14,6 +14,17 @@ function tarballForRelease(
   return `https://github.com/${owner}/${repo}/archive/${tagName}.tar.gz`
 }
 
+function formulaPath(owner: string, repo: string, formulaName: string): string {
+  if (
+    owner.toLowerCase() == 'homebrew' &&
+    repo.toLowerCase() == 'homebrew-core'
+  ) {
+    // respect formula sharding structure in `Homebrew/homebrew-core`
+    return `Formula/${formulaName.charAt(0)}/${formulaName}.rb`
+  }
+  return `Formula/${formulaName}.rb`
+}
+
 export function commitForRelease(
   messageTemplate: string,
   params: { [key: string]: string } = {}
@@ -82,7 +93,8 @@ export async function prepareEdit(
   }
   const formulaName = getInput('formula-name') || ctx.repo.repo.toLowerCase()
   const branch = getInput('base-branch')
-  const filePath = getInput('formula-path') || `Formula/${formulaName.charAt(0)}/${formulaName}.rb`
+  const filePath =
+    getInput('formula-path') || formulaPath(owner, repo, formulaName)
   const version = tagName.replace(/^v(\d)/, '$1')
   const downloadUrl =
     getInput('download-url') ||
