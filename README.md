@@ -17,13 +17,13 @@ jobs:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
           formula-name: my_formula
         env:
+          # the personal access token should have "repo" & "workflow" scopes
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
 ```
 
 The `COMMITTER_TOKEN` secret is required because this action will want to write
-to an external repository. You can [generate a new PAT
-here](https://github.com/settings/tokens) and give it `public_repo` (or `repo`
-if the homebrew tap repository is private) scopes.
+to an external repository. You can [generate a new Personal Access Token (classic)
+here](https://github.com/settings/tokens) and give it `repo` and `workflow` scopes.
 
 Comprehensive usage example:
 
@@ -40,12 +40,12 @@ jobs:
       - name: Extract version
         id: extract-version
         run: |
-          printf "::set-output name=%s::%s\n" tag-name "${GITHUB_REF#refs/tags/}"
+          echo "tag-name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - uses: mislav/bump-homebrew-formula-action@v2
-        if: "!contains(github.ref, '-')" # skip prereleases
+        if: ${{ !contains(github.ref, '-') }} # skip prereleases
         with:
           formula-name: my_formula
-          formula-path: Formula/my_formula.rb
+          formula-path: Formula/m/my_formula.rb
           homebrew-tap: Homebrew/homebrew-core
           base-branch: master
           download-url: https://example.com/foo/${{ steps.extract-version.outputs.tag-name }}.tar.gz
@@ -72,7 +72,7 @@ Formula parameters:
   lower-cased repository name.
 
 * `formula-path`: the relative path of the Homebrew formula file to edit within the `homebrew-tap` repository. Defaults to
-  `Formula/<formula-name>.rb`.
+  `Formula/<letter>/<formula-name>.rb` for homebrew-core formulae and `Formula/<formula-name>.rb` otherwise.
 
 * `tag-name`: the git tag name to bump the formula to. Defaults to the
   currently pushed tag.
