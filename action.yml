@@ -2,7 +2,7 @@ name: bump-homebrew-formula
 description: "Bump Homebrew formula after a new release"
 author: "@mislav"
 runs:
-  using: node16
+  using: node20
   main: "./lib/index.js"
 inputs:
   formula-name:
