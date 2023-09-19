@@ -67,7 +67,10 @@ test('prepareEdit() homebrew-core', async (t) => {
   // FIXME: this tests results in a live HTTP request. Figure out how to stub the `stream()` method in
   // calculate-download-checksum.
   const stubbedFetch = function (url: string) {
-    if (url == 'https://api.github.com/repos/OWNER/REPO/tarball/refs%2Ftags%2Fv0.8.2') {
+    if (
+      url ==
+      'https://api.github.com/repos/OWNER/REPO/tarball/refs%2Ftags%2Fv0.8.2'
+    ) {
       return Promise.resolve(
         new Response('', {
           status: 301,
