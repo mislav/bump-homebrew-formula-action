@@ -79,7 +79,7 @@ Formula parameters:
 
 * `download-url`: the package download URL for the Homebrew formula.
 
-  Defaults to `https://github.com/OWNER/REPO/archive/<tag-name>.tar.gz`, where `OWNER/REPO` is the repository that is running the Actions workflow.
+  Defaults to `https://github.com/OWNER/REPO/archive/refs/tags/<tag-name>.tar.gz`, where `OWNER/REPO` is the repository that is running the Actions workflow.
 
 * `download-sha256`: the SHA256 checksum of the archive at `download-url`.
   Defaults to calculating the checksum by fetching the archive at run time.
@@ -126,7 +126,7 @@ Given a Homebrew formula `Formula/my_formula.rb` in the
 
 ```rb
 class MyFormula < Formula
-  url "https://github.com/me/myproject/archive/v1.2.3.tar.gz"
+  url "https://github.com/me/myproject/archive/refs/tags/v1.2.3.tar.gz"
   sha256 "<OLDSHA>"
   # ...
 end
@@ -137,7 +137,7 @@ the formula will be updated to:
 
 ```rb
 class MyFormula < Formula
-  url "https://github.com/me/myproject/archive/v2.0.0.tar.gz"
+  url "https://github.com/me/myproject/archive/refs/tags/v2.0.0.tar.gz"
   sha256 "<NEWSHA>"
   # ...
 end

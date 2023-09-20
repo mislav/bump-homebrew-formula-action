@@ -11,7 +11,7 @@ function tarballForRelease(
   repo: string,
   tagName: string
 ): string {
-  return `https://github.com/${owner}/${repo}/archive/${tagName}.tar.gz`
+  return `https://github.com/${owner}/${repo}/archive/refs/tags/${tagName}.tar.gz`
 }
 
 function formulaPath(owner: string, repo: string, formulaName: string): string {
