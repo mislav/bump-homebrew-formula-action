@@ -17,7 +17,7 @@
     "@types/node": "^16.11.7",
     "@types/node-fetch": "^2.5.8",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
-    "@typescript-eslint/parser": "^5.43.0",
+    "@typescript-eslint/parser": "^6.7.2",
     "@vercel/ncc": "^0.38.0",
     "ava": "^5.1.0",
     "eslint": "^7.5.0",
