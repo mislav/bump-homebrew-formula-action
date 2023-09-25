@@ -11,7 +11,7 @@
     "@octokit/core": "^5.0.0",
     "@octokit/plugin-request-log": "^4.0.0",
     "@octokit/plugin-rest-endpoint-methods": "^9.0.0",
-    "@octokit/request-error": "^5.0.0"
+    "@octokit/request-error": "^5.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.6.3",
