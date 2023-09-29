@@ -3,7 +3,7 @@ import { debug } from '@actions/core'
 import { URL } from 'url'
 import { createHash } from 'crypto'
 import { get as HTTP } from 'http'
-import { get as HTTPS } from 'https'
+import { get as HTTPS, request } from 'https'
 
 interface Headers {
   [name: string]: string
@@ -32,27 +32,49 @@ function stream(
   })
 }
 
+type authInfo = {
+  token: string
+}
+
+async function resolveRedirect(apiClient: API, url: URL, asBinary: boolean): Promise<URL> {
+  const authInfo = await apiClient.auth() as authInfo
+  return new Promise((resolve, reject) => {
+    const req = request(url, {
+      method: 'HEAD',
+      headers: {
+        authorization: authInfo.token ? `bearer ${authInfo.token}` : '',
+        accept: asBinary ? 'application/octet-stream' : '*/*',
+        'User-Agent': 'bump-homebrew-formula-action',
+      },
+    }, (res) => {
+      if (res.statusCode == 302) {
+        const loc = res.headers['location']
+        if (loc != null){
+          resolve(new URL(loc))
+        } else {
+          reject(new Error(`got HTTP ${res.statusCode} but no Location header`))
+        }
+      } else {
+        reject(new Error(`unexpected HTTP ${res.statusCode} response`))
+      }
+    })
+    req.end()
+  })
+  
+}
+
 async function resolveDownload(apiClient: API, url: URL): Promise<URL> {
   if (url.hostname == 'github.com') {
     const api = apiClient.rest
     const archive = parseArchiveUrl(url)
     if (archive != null) {
-      const { owner, repo, ref } = archive
-      const res = await (archive.ext == '.zip'
-        ? api.repos.downloadZipballArchive
-        : api.repos.downloadTarballArchive)({
-        owner,
-        repo,
-        ref,
-        request: {
-          redirect: 'manual',
-        },
-      })
-      const loc = res.headers['location'] as string
+      const archiveType = archive.ext == '.zip' ? 'zipball' : 'tarball'
+      const endpoint = new URL(`https://api.github.com/repos/${archive.owner}/${archive.repo}/${archiveType}/${archive.ref}`)
+      const loc = await resolveRedirect(apiClient, endpoint, false)
       // HACK: removing "legacy" from the codeload URL ensures that we get the
       // same archive file as web download. Otherwise, the downloaded archive
       // contains resolved commit SHA instead of the tag name in directory path.
-      return new URL(loc.replace('/legacy.', '/'))
+      return new URL(loc.href.replace('/legacy.', '/'))
     }
 
     const download = parseReleaseDownloadUrl(url)
@@ -66,12 +88,7 @@ async function resolveDownload(apiClient: API, url: URL): Promise<URL> {
           `could not find asset '${download.name}' in '${tag}' release`
         )
       }
-      const assetRes = await apiClient.request(asset.url, {
-        headers: { accept: 'application/octet-stream' },
-        request: { redirect: 'manual' },
-      })
-      const loc = assetRes.headers['location'] as string
-      return new URL(loc)
+      return await resolveRedirect(apiClient, new URL(asset.url), true)
     }
   }
   return url
