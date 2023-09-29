@@ -36,31 +36,40 @@ type authInfo = {
   token: string
 }
 
-async function resolveRedirect(apiClient: API, url: URL, asBinary: boolean): Promise<URL> {
-  const authInfo = await apiClient.auth() as authInfo
+async function resolveRedirect(
+  apiClient: API,
+  url: URL,
+  asBinary: boolean
+): Promise<URL> {
+  const authInfo = (await apiClient.auth()) as authInfo
   return new Promise((resolve, reject) => {
-    const req = request(url, {
-      method: 'HEAD',
-      headers: {
-        authorization: authInfo.token ? `bearer ${authInfo.token}` : '',
-        accept: asBinary ? 'application/octet-stream' : '*/*',
-        'User-Agent': 'bump-homebrew-formula-action',
+    const req = request(
+      url,
+      {
+        method: 'HEAD',
+        headers: {
+          authorization: authInfo.token ? `bearer ${authInfo.token}` : '',
+          accept: asBinary ? 'application/octet-stream' : '*/*',
+          'User-Agent': 'bump-homebrew-formula-action',
+        },
       },
-    }, (res) => {
-      if (res.statusCode == 302) {
-        const loc = res.headers['location']
-        if (loc != null){
-          resolve(new URL(loc))
+      (res) => {
+        if (res.statusCode == 302) {
+          const loc = res.headers['location']
+          if (loc != null) {
+            resolve(new URL(loc))
+          } else {
+            reject(
+              new Error(`got HTTP ${res.statusCode} but no Location header`)
+            )
+          }
         } else {
-          reject(new Error(`got HTTP ${res.statusCode} but no Location header`))
+          reject(new Error(`unexpected HTTP ${res.statusCode} response`))
         }
-      } else {
-        reject(new Error(`unexpected HTTP ${res.statusCode} response`))
       }
-    })
+    )
     req.end()
   })
-  
 }
 
 async function resolveDownload(apiClient: API, url: URL): Promise<URL> {
@@ -69,7 +78,9 @@ async function resolveDownload(apiClient: API, url: URL): Promise<URL> {
     const archive = parseArchiveUrl(url)
     if (archive != null) {
       const archiveType = archive.ext == '.zip' ? 'zipball' : 'tarball'
-      const endpoint = new URL(`https://api.github.com/repos/${archive.owner}/${archive.repo}/${archiveType}/${archive.ref}`)
+      const endpoint = new URL(
+        `https://api.github.com/repos/${archive.owner}/${archive.repo}/${archiveType}/${archive.ref}`
+      )
       const loc = await resolveRedirect(apiClient, endpoint, false)
       // HACK: removing "legacy" from the codeload URL ensures that we get the
       // same archive file as web download. Otherwise, the downloaded archive
