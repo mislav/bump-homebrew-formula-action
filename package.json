@@ -10,7 +10,7 @@
     "@actions/github": "^5.1.1",
     "@octokit/core": "^5.0.1",
     "@octokit/plugin-request-log": "^4.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "^10.0.0",
+    "@octokit/plugin-rest-endpoint-methods": "^10.0.1",
     "@octokit/request-error": "^5.0.1"
   },
   "devDependencies": {
