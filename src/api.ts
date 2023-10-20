@@ -2,7 +2,6 @@ import { isDebug } from '@actions/core'
 import { Octokit } from '@octokit/core'
 import { restEndpointMethods } from '@octokit/plugin-rest-endpoint-methods'
 import { requestLog } from '@octokit/plugin-request-log'
-import { Response } from 'node-fetch'
 
 const GitHub = Octokit.plugin(restEndpointMethods, requestLog).defaults({
   baseUrl: 'https://api.github.com',

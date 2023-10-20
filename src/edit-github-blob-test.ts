@@ -1,6 +1,5 @@
 import test from 'ava'
 import api from './api'
-import { Response } from 'node-fetch'
 import editGithubBlob from './edit-github-blob'
 
 type fetchOptions = {
