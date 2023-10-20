@@ -10,12 +10,10 @@
     "@actions/github": "^6.0.0",
     "@octokit/core": "^5.0.1",
     "@octokit/plugin-request-log": "^4.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "^10.0.1",
-    "@octokit/request-error": "^5.0.1"
+    "@octokit/plugin-rest-endpoint-methods": "^10.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.8.6",
-    "@types/node-fetch": "^2.6.5",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.7.4",
     "@vercel/ncc": "^0.38.0",
@@ -23,7 +21,6 @@
     "eslint": "^8.51.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
-    "node-fetch": "^2.7.0",
     "prettier": "^3.0.3",
     "typescript": "5.2.x"
   },

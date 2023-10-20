@@ -1,6 +1,10 @@
 import type { API } from './api'
-import { RequestError } from '@octokit/request-error'
 import { basename } from 'path'
+
+// avoid importing @octokit/request-error to not have to keep it in sync in package.json
+interface RequestError {
+  status: number
+}
 
 async function retry<T>(
   times: number,
@@ -84,7 +88,7 @@ export default async function (params: Options): Promise<string> {
           branch: repoRes.data.default_branch,
         })
       } catch (err) {
-        if (err instanceof RequestError && err.status === 409) {
+        if ((err as RequestError).status === 409) {
           // ignore
         } else {
           throw err

@@ -4,8 +4,6 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
-    ignore:
-      - dependency-name: 'node-fetch'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
