@@ -13,7 +13,7 @@
     "@octokit/plugin-rest-endpoint-methods": "^10.1.4"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
+    "@types/node": "^20.11.5",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "@vercel/ncc": "^0.38.1",
