@@ -38,6 +38,7 @@ export type Options = {
     repo: string
   }
   makePR?: boolean
+  makeBranch?: boolean
 }
 
 export default async function (params: Options): Promise<string> {
@@ -65,7 +66,8 @@ export default async function (params: Options): Promise<string> {
     branch: baseBranch,
   })
   const needsBranch =
-    inFork || branchRes.data.protected || params.makePR === true
+    params.makeBranch !== false &&
+    (inFork || branchRes.data.protected || params.makePR === true)
 
   if (makeFork) {
     const res = await Promise.all([
