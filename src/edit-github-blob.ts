@@ -66,7 +66,7 @@ export default async function (params: Options): Promise<string> {
     branch: baseBranch,
   })
   const needsBranch =
-    params.makeBranch === undefined
+    params.makeBranch == null
       ? inFork || branchRes.data.protected || params.makePR === true
       : params.makeBranch
 
