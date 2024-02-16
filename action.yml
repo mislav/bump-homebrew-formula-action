@@ -24,6 +24,8 @@ inputs:
     description: The branch name in the homebrew-tap repository to update the formula in
   create-pullrequest:
     description: Set to a boolean value to either force or prohibit making a pull request to homebrew-tap
+  create-branch:
+    description: Set to a boolean value to either force or prohibit creating a separate branch on homebrew-tap
   commit-message:
     description: The git commit message template to use when updating the formula
     default: |
