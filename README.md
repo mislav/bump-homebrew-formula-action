@@ -98,6 +98,11 @@ Repository parameters:
   a pull request to `homebrew-tap`. Defaults to false if `COMMITTER_TOKEN` has
   the privileges to directly push to `base-branch` in `homebrew-tap`.
 
+- `create-branch`: a boolean value to either force or prohibit creating a
+  branch on `homebrew-tap`. Defaults to false if `COMMITTER_TOKEN` has
+  the privileges to directly push to `base-branch` in `homebrew-tap`.
+  You cannot set this to `false` if `create-pullrequest` is set to `true`.
+
 - `commit-message`: the git commit message template to use when updating the
   formula. The following placeholders be expanded:
 

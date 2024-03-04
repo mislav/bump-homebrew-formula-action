@@ -106,6 +106,17 @@ export async function prepareEdit(
     makePR = getBooleanInput('create-pullrequest')
   }
 
+  let makeBranch: boolean | undefined
+  if (getInput('create-branch')) {
+    makeBranch = getBooleanInput('create-branch')
+  }
+
+  if (makePR === true && makeBranch === false) {
+    throw new Error(
+      'create-pullrequest cannot be true if create-branch is false'
+    )
+  }
+
   const replacements = new Map<string, string>()
   replacements.set('version', version)
   replacements.set('url', downloadUrl)
@@ -146,6 +157,7 @@ export async function prepareEdit(
     commitMessage,
     pushTo,
     makePR,
+    makeBranch,
     replace(oldContent: string) {
       return removeRevisionLine(replaceFields(oldContent, replacements))
     },
