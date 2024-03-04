@@ -86,7 +86,10 @@ Repository parameters:
 - `homebrew-tap`: the full GitHub repository name (in the `NAME/OWNER` format) where the Homebrew formula should be updated. Defaults
   to `Homebrew/homebrew-core`.
 
-- `push-to`: a specific fork of `homebrew-tap` where the edit should be pushed to. Defaults to creating or reusing a personal fork of the owner of COMMITTER_TOKEN.
+- `push-to`: a specific fork of `homebrew-tap` where the edit should be pushed to.
+  Defaults to creating or reusing a personal fork of the owner of COMMITTER_TOKEN.
+  (Note: avoid using an organization-owned fork, as that
+  [breaks automation for `homebrew-core`](https://github.com/foxglove/mcap/issues/1063)).
 
 - `base-branch`: the branch name in the `homebrew-tap` repository where the
   formula should be updated. Defaults to the main branch of the repository.
