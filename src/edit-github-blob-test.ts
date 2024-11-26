@@ -1,6 +1,6 @@
 import test from 'ava'
-import api from './api'
-import editGithubBlob from './edit-github-blob'
+import api from './api.js'
+import editGithubBlob from './edit-github-blob.js'
 
 type fetchOptions = {
   method: string

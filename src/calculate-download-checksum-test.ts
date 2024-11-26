@@ -3,7 +3,7 @@ import { URL } from 'url'
 import {
   parseArchiveUrl,
   parseReleaseDownloadUrl,
-} from './calculate-download-checksum'
+} from './calculate-download-checksum.js'
 
 test('calculate-download-checksum parseArchiveUrl', (t) => {
   const tests = [

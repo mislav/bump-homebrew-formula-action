@@ -1,4 +1,4 @@
-import { compare, fromUrl } from './version'
+import { compare, fromUrl } from './version.js'
 
 export class UpgradeError extends Error {}
 
