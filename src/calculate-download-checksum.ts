@@ -1,4 +1,4 @@
-import type { API } from './api'
+import type { API } from './api.js'
 import { debug } from '@actions/core'
 import { URL } from 'url'
 import { createHash } from 'crypto'

@@ -1,9 +1,9 @@
 import { getInput, getBooleanInput } from '@actions/core'
-import type { API } from './api'
-import editGitHubBlob from './edit-github-blob'
-import { Options as EditOptions } from './edit-github-blob'
-import { removeRevisionLine, replaceFields } from './replace-formula-fields'
-import calculateDownloadChecksum from './calculate-download-checksum'
+import type { API } from './api.js'
+import editGitHubBlob from './edit-github-blob.js'
+import { Options as EditOptions } from './edit-github-blob.js'
+import { removeRevisionLine, replaceFields } from './replace-formula-fields.js'
+import calculateDownloadChecksum from './calculate-download-checksum.js'
 import { context } from '@actions/github'
 
 function tarballForRelease(
