@@ -4,6 +4,23 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    groups:
+      eslint:
+        applies-to: version-updates
+        patterns:
+          - '@eslint/*'
+          - '*-eslint'
+          - eslint
+      github-actions:
+        applies-to: version-updates
+        patterns:
+          - '@actions/*'
+          - '@octokit/*'
+      ava:
+        applies-to: version-updates
+        patterns:
+          - '@ava/*'
+          - ava
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
