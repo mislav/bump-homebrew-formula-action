@@ -17,7 +17,7 @@
     "@ava/typescript": "^5.0.0",
     "@eslint/js": "^9.18.0",
     "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.17.12",
+    "@types/node": "^20.17.14",
     "@vercel/ncc": "^0.38.1",
     "ava": "^6.1.2",
     "eslint": "^9.18.0",
