@@ -21,7 +21,7 @@
     "@vercel/ncc": "^0.38.1",
     "ava": "^6.1.2",
     "eslint": "^9.21.0",
-    "typescript": "5.7.x",
+    "typescript": "5.8.x",
     "typescript-eslint": "^8.25.0"
   },
   "prettier": {
