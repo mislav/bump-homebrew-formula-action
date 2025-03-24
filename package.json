@@ -11,7 +11,7 @@
     "@actions/github": "^6.0.0",
     "@octokit/core": "^6.1.4",
     "@octokit/plugin-request-log": "^5.3.1",
-    "@octokit/plugin-rest-endpoint-methods": "^13.3.1"
+    "@octokit/plugin-rest-endpoint-methods": "^13.5.0"
   },
   "devDependencies": {
     "@ava/typescript": "^5.0.0",
