@@ -19,6 +19,7 @@ function stream(
       if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
         const loc = res.headers['location']
         if (loc == null) throw `HTTP ${res.statusCode} but no Location header`
+        res.resume()
         const nextURL = new URL(loc)
         log(nextURL)
         resolve(stream(nextURL, headers, cb))
