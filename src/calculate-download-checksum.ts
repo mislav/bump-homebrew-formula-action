@@ -18,13 +18,14 @@ function stream(
     ;(url.protocol == 'https:' ? HTTPS : HTTP)(url, { headers }, (res) => {
       if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
         const loc = res.headers['location']
-        if (loc == null) throw `HTTP ${res.statusCode} but no Location header`
         res.resume()
+        if (loc == null) throw `HTTP ${res.statusCode} but no Location header`
         const nextURL = new URL(loc)
         log(nextURL)
         resolve(stream(nextURL, headers, cb))
         return
       } else if (res.statusCode && res.statusCode >= 400) {
+        res.resume()
         throw new Error(`HTTP ${res.statusCode}`)
       }
       res.on('data', (d) => cb(d))
