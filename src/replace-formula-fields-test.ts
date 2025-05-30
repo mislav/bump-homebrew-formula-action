@@ -1,5 +1,5 @@
 import test from 'ava'
-import { replaceFields } from './replace-formula-fields'
+import { replaceFields } from './replace-formula-fields.js'
 
 test('replaceFields()', (t) => {
   const input = `

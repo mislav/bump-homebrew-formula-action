@@ -3,7 +3,10 @@ import { URL } from 'url'
 import {
   parseArchiveUrl,
   parseReleaseDownloadUrl,
-} from './calculate-download-checksum'
+} from './calculate-download-checksum.js'
+import stream from './calculate-download-checksum.js'
+import { createServer } from 'http'
+import api from './api.js'
 
 test('calculate-download-checksum parseArchiveUrl', (t) => {
   const tests = [
@@ -80,4 +83,45 @@ test('calculate-download-checksum parseReleaseDownloadUrl', (t) => {
     t.is(tt.wants.tagname, asset.tagname)
     t.is(tt.wants.name, asset.name)
   })
+})
+
+test('calculate-download-checksum stream', async (t) => {
+  const server = createServer((req, res) => {
+    if (req.url == '/redirect') {
+      res.writeHead(302, { location: `http://${req.headers['host']}/download` })
+      res.end()
+    } else if (req.url == '/download') {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      res.end('hello world')
+    } else {
+      res.writeHead(404)
+      res.end()
+    }
+  })
+
+  // start a test server on a randomly available port
+  await new Promise<void>((resolve) => server.listen(0, resolve))
+  const address = server.address()
+  if (typeof address !== 'object' || address == null) {
+    t.fail('Could not get server address')
+    return
+  }
+
+  const apiClient = api('ATOKEN')
+  const shasum = await stream(
+    apiClient,
+    `http://localhost:${address.port}/redirect`,
+    'sha256'
+  )
+  t.is(
+    shasum,
+    'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9' // sha256 of 'hello world'
+  )
+
+  t.teardown(
+    () =>
+      new Promise<void>((resolve) => {
+        server.close(() => resolve())
+      })
+  )
 })

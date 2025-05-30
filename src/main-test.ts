@@ -1,6 +1,6 @@
 import test from 'ava'
-import api from './api'
-import { commitForRelease, prepareEdit } from './main'
+import api from './api.js'
+import { commitForRelease, prepareEdit } from './main.js'
 
 test('commitForRelease()', (t) => {
   t.is(

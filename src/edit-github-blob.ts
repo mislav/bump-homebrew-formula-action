@@ -1,4 +1,4 @@
-import type { API } from './api'
+import type { API } from './api.js'
 import { basename } from 'path'
 
 // avoid importing @octokit/request-error to not have to keep it in sync in package.json

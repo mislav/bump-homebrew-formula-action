@@ -1,5 +1,5 @@
 import test from 'ava'
-import { compare, fromUrl } from './version'
+import { compare, fromUrl } from './version.js'
 
 test('fromUrl()', (t) => {
   const cases = new Map<string, string>([
