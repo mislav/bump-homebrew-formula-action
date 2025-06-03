@@ -15,14 +15,14 @@
   },
   "devDependencies": {
     "@ava/typescript": "^5.0.0",
-    "@eslint/js": "^9.26.0",
+    "@eslint/js": "^9.28.0",
     "@tsconfig/node20": "^20.1.5",
     "@types/node": "^20.17.50",
     "@vercel/ncc": "^0.38.1",
     "ava": "^6.3.0",
-    "eslint": "^9.26.0",
+    "eslint": "^9.28.0",
     "typescript": "5.8.x",
-    "typescript-eslint": "^8.31.1"
+    "typescript-eslint": "^8.33.1"
   },
   "prettier": {
     "trailingComma": "es5",
