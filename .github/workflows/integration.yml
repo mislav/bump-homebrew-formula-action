@@ -1,0 +1,51 @@
+name: Integration test
+
+on:
+  push:
+    branches:
+      - 'v[1-9]*'
+    tags:
+      - 'v[1-9]*'
+  pull_request:
+    branches:
+      - 'v[1-9]*'
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - run: npm ci
+      - name: Run integration test
+        env:
+          COMMITTER_TOKEN: ${{ secrets.INTEGRATION_ACCESS_TOKEN }}
+        run: |
+          entrypoint="$(ruby -r yaml -e 'puts YAML.load(ARGF)["runs"]["main"]' action.yml)"
+          if [ -z "$entrypoint" ]; then
+            echo "error: could not determine entrypoint from action.yml" >&2
+            exit 1
+          fi
+
+          env \
+            'GITHUB_REPOSITORY=rbenv/rbenv' \
+            'GITHUB_REF=refs/tags/v1.3.2' \
+            'INPUT_FORMULA-NAME=rbenv' \
+            'INPUT_HOMEBREW-TAP=Homebrew/homebrew-core' \
+            'INPUT_COMMIT-MESSAGE=Upgrade {{formulaName}} to {{version}}' \
+            node --enable-source-maps "$entrypoint" 2>&1 | tee test.log
+
+          exit_status="${PIPESTATUS[0]}"
+          if [ "$exit_status" -ne 0 ]; then
+            echo "error: expected $entrypoint to exit with status 0, got $exit_status" >&2
+            exit 1
+          fi
+          if ! grep -qF "Skipping: the formula is already at version 'v1.3.2'" test.log; then
+            echo "error: expected the log to contain 'Skipping: the formula is already at version 'v1.3.2''" >&2
+            exit 1
+          fi
