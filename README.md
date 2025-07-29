@@ -170,7 +170,7 @@ jobs:
           formula-name: my_formula
           formula-path: Formula/m/my_formula.rb
           homebrew-tap: Homebrew/homebrew-core
-          base-branch: master
+          base-branch: main
           download-url: https://example.com/packages/myformula-${{ steps.extract-version.outputs.tag-name }}.tar.gz
           commit-message: |
             {{formulaName}} {{version}}
