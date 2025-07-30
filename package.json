@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "npm run build",
     "build": "rm -rf lib && ncc build src/run.ts -o lib --source-map --no-source-map-register",
     "lint": "eslint .",
     "test": "tsc --sourceMap && ava"
