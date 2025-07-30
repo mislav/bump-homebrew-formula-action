@@ -1,4 +1,4 @@
-import { getInput, getBooleanInput } from '@actions/core'
+import { getInput, getBooleanInput, summary } from '@actions/core'
 import type { API } from './api.js'
 import editGitHubBlob from './edit-github-blob.js'
 import { Options as EditOptions } from './edit-github-blob.js'
@@ -45,6 +45,7 @@ export default async function (api: (token: string) => API): Promise<void> {
     process.env.GITHUB_TOKEN || process.env.COMMITTER_TOKEN || ''
   const externalToken = process.env.COMMITTER_TOKEN || ''
 
+  summary.addHeading('Bump Homebrew formula')
   const options = await prepareEdit(
     context,
     api(internalToken),
@@ -52,6 +53,9 @@ export default async function (api: (token: string) => API): Promise<void> {
   )
   const createdUrl = await editGitHubBlob(options)
   console.log(createdUrl)
+  summary.addLink(createdUrl, createdUrl)
+  summary.addSeparator()
+  summary.write()
 }
 
 type Context = {
@@ -147,6 +151,8 @@ export async function prepareEdit(
     formulaName,
     version,
   })
+
+  summary.addRaw(`🍺 Bumping ${formulaName} to ${tagName} `)
 
   return {
     apiClient: crossRepoClient,
