@@ -2,27 +2,27 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "rm -rf lib && ncc build src/run.ts -o lib --source-map",
+    "build": "rm -rf lib && ncc build src/run.ts -o lib --source-map --no-source-map-register",
     "lint": "eslint .",
     "test": "tsc --sourceMap && ava"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
-    "@octokit/core": "^7.0.2",
+    "@octokit/core": "^7.0.3",
     "@octokit/plugin-request-log": "^6.0.0",
     "@octokit/plugin-rest-endpoint-methods": "^16.0.0"
   },
   "devDependencies": {
-    "@ava/typescript": "^5.0.0",
-    "@eslint/js": "^9.26.0",
-    "@tsconfig/node20": "^20.1.5",
-    "@types/node": "^20.17.50",
+    "@ava/typescript": "^6.0.0",
+    "@eslint/js": "^9.32.0",
+    "@tsconfig/node20": "^20.1.6",
+    "@types/node": "^24.1.0",
     "@vercel/ncc": "^0.38.1",
-    "ava": "^6.3.0",
-    "eslint": "^9.26.0",
+    "ava": "^6.4.1",
+    "eslint": "^9.32.0",
     "typescript": "5.8.x",
-    "typescript-eslint": "^8.31.1"
+    "typescript-eslint": "^8.38.0"
   },
   "prettier": {
     "trailingComma": "es5",
