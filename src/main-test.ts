@@ -126,5 +126,7 @@ test('prepareEdit() non-homebrew-core', async (t) => {
   t.is(opts.repo, 'homebrew-utils')
   t.is(opts.branch, '')
   t.is(opts.filePath, 'Formula/repo.rb')
+  t.is(opts.formulaName, 'repo')
+  t.is(opts.version, '0.8.2')
   t.is(opts.commitMessage, 'Upgrade repo to 0.8.2')
 })

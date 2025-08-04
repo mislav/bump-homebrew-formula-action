@@ -1,4 +1,4 @@
-import { getInput, getBooleanInput } from '@actions/core'
+import { getInput, getBooleanInput, summary } from '@actions/core'
 import type { API } from './api.js'
 import editGitHubBlob from './edit-github-blob.js'
 import { Options as EditOptions } from './edit-github-blob.js'
@@ -52,6 +52,14 @@ export default async function (api: (token: string) => API): Promise<void> {
   )
   const createdUrl = await editGitHubBlob(options)
   console.log(createdUrl)
+
+  if (options.formulaName && options.version) {
+    summary.addHeading('Bump Homebrew formula')
+    summary.addRaw(`🍺 Bumped ${options.formulaName} to ${options.version} `)
+    summary.addLink(createdUrl, createdUrl)
+    summary.addEOL()
+    summary.write()
+  }
 }
 
 type Context = {
@@ -154,6 +162,8 @@ export async function prepareEdit(
     repo,
     branch,
     filePath,
+    formulaName,
+    version,
     commitMessage,
     pushTo,
     makePR,
