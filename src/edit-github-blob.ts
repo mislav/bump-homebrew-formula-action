@@ -29,6 +29,8 @@ export type Options = {
   owner: string
   repo: string
   filePath: string
+  formulaName?: string
+  version?: string
   branch?: string
   apiClient: API
   replace: (oldContent: string) => string
