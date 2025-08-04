@@ -45,7 +45,6 @@ export default async function (api: (token: string) => API): Promise<void> {
     process.env.GITHUB_TOKEN || process.env.COMMITTER_TOKEN || ''
   const externalToken = process.env.COMMITTER_TOKEN || ''
 
-  summary.addHeading('Bump Homebrew formula')
   const options = await prepareEdit(
     context,
     api(internalToken),
@@ -53,9 +52,14 @@ export default async function (api: (token: string) => API): Promise<void> {
   )
   const createdUrl = await editGitHubBlob(options)
   console.log(createdUrl)
-  summary.addLink(createdUrl, createdUrl)
-  summary.addSeparator()
-  summary.write()
+
+  if (options.formulaName && options.version) {
+    summary.addHeading('Bump Homebrew formula')
+    summary.addRaw(`🍺 Bumped ${options.formulaName} to ${options.version} `)
+    summary.addLink(createdUrl, createdUrl)
+    summary.addEOL()
+    summary.write()
+  }
 }
 
 type Context = {
@@ -152,14 +156,14 @@ export async function prepareEdit(
     version,
   })
 
-  summary.addRaw(`🍺 Bumping ${formulaName} to ${tagName} `)
-
   return {
     apiClient: crossRepoClient,
     owner,
     repo,
     branch,
     filePath,
+    formulaName,
+    version,
     commitMessage,
     pushTo,
     makePR,
