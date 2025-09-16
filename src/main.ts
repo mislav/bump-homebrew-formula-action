@@ -54,7 +54,6 @@ export default async function (api: (token: string) => API): Promise<void> {
   console.log(createdUrl)
 
   if (options.formulaName && options.version) {
-    summary.addHeading('Bump Homebrew formula')
     summary.addRaw(`🍺 Bumped ${options.formulaName} to ${options.version} `)
     summary.addLink(createdUrl, createdUrl)
     summary.addEOL()
