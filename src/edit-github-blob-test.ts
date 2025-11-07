@@ -60,6 +60,7 @@ test('edit-github-blob direct push', async (t) => {
 
   const url = await editGithubBlob({
     apiClient: api('ATOKEN', { fetch: stubbedFetch, logRequests: false }),
+    authType: 'user',
     owner: 'OWNER',
     repo: 'REPO',
     filePath: 'formula/test.rb',
@@ -139,6 +140,7 @@ test('edit-github-blob via pull request', async (t) => {
 
   const url = await editGithubBlob({
     apiClient: api('ATOKEN', { fetch: stubbedFetch, logRequests: false }),
+    authType: 'user',
     owner: 'OWNER',
     repo: 'REPO',
     filePath: 'formula/test.rb',
@@ -214,6 +216,7 @@ test('edit-github-blob with pushTo a fork', async (t) => {
 
   const url = await editGithubBlob({
     apiClient: api('ATOKEN', { fetch: stubbedFetch, logRequests: false }),
+    authType: 'user',
     owner: 'OWNER',
     repo: 'REPO',
     pushTo: { owner: 'FORKOWNER', repo: 'REPO' },
@@ -265,6 +268,7 @@ test('edit-github-blob with pushTo the base repo', async (t) => {
 
   const url = await editGithubBlob({
     apiClient: api('ATOKEN', { fetch: stubbedFetch, logRequests: false }),
+    authType: 'user',
     owner: 'OWNER',
     repo: 'REPO',
     pushTo: { owner: 'OWNER', repo: 'REPO' },
@@ -272,6 +276,42 @@ test('edit-github-blob with pushTo the base repo', async (t) => {
     replace: (oldContent) => oldContent.toUpperCase(),
   })
   t.is(url, 'https://github.com/OWNER/REPO/commit/NEWSHA')
+})
+
+test('edit-github-blob with GitHub App auth throws error on fork attempt', async (t) => {
+  const stubbedFetch = function (url: string, options: fetchOptions) {
+    function route(method: string, path: string): boolean {
+      return (
+        method.toUpperCase() === options.method.toUpperCase() &&
+        `https://api.github.com/${path}` === url
+      )
+    }
+
+    if (route('GET', 'repos/OWNER/REPO')) {
+      return replyJSON(200, {
+        default_branch: 'main',
+        permissions: { push: false },
+      })
+    } else if (route('GET', 'repos/OWNER/REPO/branches/main')) {
+      return replyJSON(200, {
+        commit: { sha: 'COMMITSHA' },
+        protected: false,
+      })
+    }
+    throw `not stubbed: ${options.method} ${url}`
+  }
+
+  const error = await t.throwsAsync(
+    editGithubBlob({
+      apiClient: api('ATOKEN', { fetch: stubbedFetch, logRequests: false }),
+      authType: 'app',
+      owner: 'OWNER',
+      repo: 'REPO',
+      filePath: 'formula/test.rb',
+      replace: (oldContent) => oldContent.toUpperCase(),
+    })
+  )
+  t.true(error?.message.includes('GitHub Apps cannot create personal forks'))
 })
 
 test('edit-github-blob with create-branch set to false', async (t) => {
@@ -316,6 +356,7 @@ test('edit-github-blob with create-branch set to false', async (t) => {
 
   const url = await editGithubBlob({
     apiClient: api('ATOKEN', { fetch: stubbedFetch, logRequests: false }),
+    authType: 'user',
     owner: 'OWNER',
     repo: 'REPO',
     filePath: 'formula/test.rb',

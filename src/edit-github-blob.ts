@@ -33,6 +33,7 @@ export type Options = {
   version?: string
   branch?: string
   apiClient: API
+  authType: 'user' | 'app'
   replace: (oldContent: string) => string
   commitMessage?: string
   pushTo?: {
@@ -73,16 +74,22 @@ export default async function (params: Options): Promise<string> {
       : params.makeBranch
 
   if (makeFork) {
-    const res = await Promise.all([
-      api.repos.createFork(baseRepo),
-      api.users.getAuthenticated(),
-    ])
-    headRepo = {
-      owner: res[1].data.login,
-      repo: baseRepo.repo,
+    if (params.authType === 'app') {
+      // For GitHub Apps, we can't create personal forks
+      // Instead, we need to work with an existing fork or handle differently
+      throw new Error(
+        'GitHub Apps cannot create personal forks. Please specify a push-to target fork or ensure the app has direct push access to the target repository.'
+      )
+    } else {
+      // Original logic for user tokens
+      await api.repos.createFork(baseRepo)
+      const userRes = await params.apiClient.rest.users.getAuthenticated()
+      headRepo = {
+        owner: userRes.data.login,
+        repo: baseRepo.repo,
+      }
     }
   }
-
   if (needsBranch) {
     const timestamp = Math.round(Date.now() / 1000)
     headBranch = `update-${basename(filePath)}-${timestamp}`

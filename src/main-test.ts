@@ -70,7 +70,7 @@ test('prepareEdit() homebrew-core', async (t) => {
   }
   const apiClient = api('', { fetch: stubbedFetch, logRequests: false })
 
-  const opts = await prepareEdit(ctx, apiClient, apiClient)
+  const opts = await prepareEdit(ctx, apiClient, apiClient, 'user')
   t.is(opts.owner, 'Homebrew')
   t.is(opts.repo, 'homebrew-core')
   t.is(opts.branch, '')
@@ -121,7 +121,7 @@ test('prepareEdit() non-homebrew-core', async (t) => {
     logRequests: false,
   })
 
-  const opts = await prepareEdit(ctx, apiClient, apiClient)
+  const opts = await prepareEdit(ctx, apiClient, apiClient, 'user')
   t.is(opts.owner, 'myorg')
   t.is(opts.repo, 'homebrew-utils')
   t.is(opts.branch, '')
