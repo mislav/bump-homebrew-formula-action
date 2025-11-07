@@ -1,7 +1,9 @@
 A minimal GitHub action that uses the GitHub API to bump a Homebrew formula
 after a new release in your repository.
 
-Usage example:
+Usage examples:
+
+**Option 1 - Using input parameters (recommended):**
 
 ```yml
 on:
@@ -12,6 +14,29 @@ jobs:
   homebrew:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Required for GitHub Apps
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          token: ${{ secrets.COMMITTER_TOKEN }} # or ${{ secrets.GITHUB_TOKEN }} for GitHub Apps
+          auth-type: user # or 'app' for GitHub Apps (defaults to 'user')
+          formula-name: my_formula
+```
+
+**Option 2 - Using environment variables (legacy):**
+
+```yml
+on:
+  push:
+    tags: 'v*'
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # Required for GitHub Apps
     steps:
       - uses: mislav/bump-homebrew-formula-action@v3
         with:
@@ -21,13 +46,23 @@ jobs:
           # The "sha256" formula field will get automatically recomputed.
           formula-name: my_formula
         env:
-          # the personal access token should have "repo" & "workflow" scopes
+          # For Personal Access Tokens, use COMMITTER_TOKEN
+          # For GitHub Apps, GITHUB_TOKEN is used automatically
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
 ```
 
-The `COMMITTER_TOKEN` secret is required because this action will want to write
-to an external repository. You can [generate a new Personal Access Token (classic)
-here](https://github.com/settings/tokens) and give it `repo` and `workflow` scopes.
+### Authentication Options
+
+This action supports two ways to provide authentication tokens:
+
+1. **Input Parameter (Recommended):** Use the `token` input parameter for explicit configuration
+2. **Environment Variables (Legacy):** Use `COMMITTER_TOKEN` or `GITHUB_TOKEN` environment variables
+
+**GitHub App Setup:**
+Install a GitHub App with appropriate permissions. Use `GITHUB_TOKEN` or pass it via the `token` input with `auth-type: app`.
+
+**Personal Access Token Setup:**
+Generate a [Personal Access Token (classic)](https://github.com/settings/tokens) with `repo` and `workflow` scopes. Use `COMMITTER_TOKEN` environment variable or pass it via the `token` input.
 
 ## How it works
 
@@ -62,6 +97,12 @@ This action can update the following Homebrew formula fields:
 - `revision` - for git-based `download-url`
 
 ## Action inputs
+
+Authentication parameters:
+
+- `token` (optional): GitHub token for authentication. Use a Personal Access Token with `repo` and `workflow` scopes, or a GitHub App installation token with appropriate permissions. If not provided, falls back to `COMMITTER_TOKEN` or `GITHUB_TOKEN` environment variables.
+
+- `auth-type` (optional): Type of authentication being used. Set to `user` for Personal Access Tokens or `app` for GitHub Apps. Defaults to `user`.
 
 Formula parameters:
 
@@ -126,17 +167,132 @@ Repository parameters:
 
 ### Environment variables
 
-- `COMMITTER_TOKEN` (required): needs _write access_ to the repository specified
-  by the `homebrew-tap` input, or enough privileges to _fork the tap repo_
-  (usually `homebrew-core`) and submit a PR to it.
+Environment variables are supported for backward compatibility when the `token` input is not provided:
 
-  Recommended "classic" token scopes: `repo` & `workflow`.
+- `COMMITTER_TOKEN` (legacy): GitHub Personal Access Token with `repo` and `workflow` scopes for writing to external repositories.
 
-- `GITHUB_TOKEN` (optional): needs _read access_ to the contents of the
-  repository that is executing this action; will be used for verifying the
-  SHA256 checksum of the downloadable archive for this release. Useful only if
-  the repository that runs this Action is private _and_ if `COMMITTER_TOKEN` has
-  the `public_repo` scope only.
+- `GITHUB_TOKEN` (legacy): GitHub App installation token or PAT for repository access. Automatically available in GitHub Actions workflows.
+
+**Note:** Using the `token` input parameter is recommended over environment variables for clearer configuration.
+
+## GitHub App Integration
+
+This action supports both Personal Access Tokens (PATs) and GitHub Apps. GitHub Apps are the recommended approach for organizations as they provide better security and permission management.
+
+### GitHub App Setup
+
+1. **Create a GitHub App** in your organization or personal account
+2. **Grant the following permissions**:
+   - Contents: Read & Write (to read formula files and create commits)
+   - Metadata: Read (to access repository information)
+   - Pull requests: Write (if creating pull requests)
+   - Issues: Write (if the tap repo uses issue linking)
+3. **Install the app** on repositories containing your formulas and the homebrew tap repository
+
+### GitHub App Usage Options
+
+#### Option 1: Direct Push Access (Recommended)
+
+Grant your GitHub App push access directly to the homebrew tap repository:
+
+```yml
+on:
+  push:
+    tags: 'v*'
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          auth-type: app
+          formula-name: my_formula
+          homebrew-tap: Homebrew/homebrew-core
+```
+
+#### Option 2: Fork-based Workflow
+
+For homebrew-core contributions where direct push isn't possible, create a fork manually:
+
+```yml
+on:
+  push:
+    tags: 'v*'
+
+jobs:
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          auth-type: app
+          formula-name: my_formula
+          homebrew-tap: Homebrew/homebrew-core
+          push-to: myorg/homebrew-core # Your organization's fork
+```
+
+#### Option 3: Organization-owned Fork
+
+Use an organization-owned fork where your GitHub App has access:
+
+```yml
+- uses: mislav/bump-homebrew-formula-action@v3
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    auth-type: app
+    formula-name: my_formula
+    homebrew-tap: Homebrew/homebrew-core
+    push-to: mycompany/homebrew-core # Pre-existing organization fork
+```
+
+### GitHub App vs Personal Access Token
+
+| Feature                   | GitHub App                                  | Personal Access Token                    |
+| ------------------------- | ------------------------------------------- | ---------------------------------------- |
+| **Security**              | ✅ Better - scoped to specific repositories | ⚠️ Broader access to user's repositories |
+| **Fork Creation**         | ❌ Cannot create personal forks             | ✅ Can create personal forks             |
+| **Organization Use**      | ✅ Recommended for organizations            | ⚠️ Tied to individual user account       |
+| **Permission Management** | ✅ Fine-grained repository permissions      | ⚠️ Broader scope requirements            |
+| **Setup Complexity**      | ⚠️ Requires app installation                | ✅ Simple token generation               |
+
+### Troubleshooting GitHub Apps
+
+**Error: "GitHub Apps cannot create personal forks"**
+
+This occurs when the action tries to create a fork but you're using a GitHub App token. Solutions:
+
+- Use Option 1 (direct push access) if possible
+- Create a fork manually and use the `push-to` parameter
+- Switch to a Personal Access Token if fork creation is required
+
+**Error: "No authentication token found"**
+
+Provide authentication either via input parameter or environment variable:
+
+```yml
+# Option 1: Input parameter
+- uses: mislav/bump-homebrew-formula-action@v3
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }} # or ${{ secrets.COMMITTER_TOKEN }}
+    auth-type: app # or 'user'
+    formula-name: my_formula
+
+# Option 2: Environment variable
+- uses: mislav/bump-homebrew-formula-action@v3
+  with:
+    formula-name: my_formula
+  env:
+    COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+```
 
 ## Examples
 
@@ -167,6 +323,8 @@ jobs:
 
       - uses: mislav/bump-homebrew-formula-action@v3
         with:
+          token: ${{ secrets.COMMITTER_TOKEN }} # Optional: use input parameter
+          auth-type: user # Optional: specify auth type (defaults to 'user')
           formula-name: my_formula
           formula-path: Formula/m/my_formula.rb
           homebrew-tap: Homebrew/homebrew-core
@@ -176,9 +334,9 @@ jobs:
             {{formulaName}} {{version}}
 
             Created by https://github.com/mislav/bump-homebrew-formula-action
-        env:
-          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
-          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Alternative: use environment variables instead of token input
+        # env:
+        #   COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
 ```
 
 ### Manual trigger
@@ -225,6 +383,8 @@ and to submit those edits as a PR.
 
 Because of said design, this action is less featured than the [official `brew
 bump-formula-pr` command][1] that ships with Homebrew. Known limitations are:
+
+- **GitHub Apps cannot create personal forks**: When using GitHub App authentication, you must either have direct push access to the target repository or specify an existing fork via the `push-to` parameter.
 
 - Limited support for [bumping Homebrew casks](https://github.com/mislav/bump-homebrew-formula-action/issues/42#issuecomment-1410441868)
 

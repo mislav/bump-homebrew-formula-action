@@ -5,6 +5,12 @@ runs:
   using: node20
   main: "./lib/index.js"
 inputs:
+  token:
+    description: GitHub token for authentication (Personal Access Token or GitHub App installation token). If not provided, falls back to COMMITTER_TOKEN or GITHUB_TOKEN environment variables.
+    required: false
+  auth-type:
+    description: Type of authentication being used ('user' for Personal Access Token, 'app' for GitHub App)
+    default: user
   formula-name:
     description: The name of the Homebrew formula (defaults to lower-cased repository name)
   formula-path:
