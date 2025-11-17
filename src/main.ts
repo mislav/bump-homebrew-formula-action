@@ -41,14 +41,30 @@ export function commitForRelease(
 }
 
 export default async function (api: (token: string) => API): Promise<void> {
-  const internalToken =
-    process.env.GITHUB_TOKEN || process.env.COMMITTER_TOKEN || ''
-  const externalToken = process.env.COMMITTER_TOKEN || ''
+  // Support both input parameter and environment variable approaches
+  const token =
+    getInput('token') ||
+    process.env.COMMITTER_TOKEN ||
+    process.env.GITHUB_TOKEN ||
+    ''
+  const authType = getInput('auth-type') || 'user'
 
+  if (!token) {
+    throw new Error(
+      'No authentication token found. Please provide a token via the "token" input parameter or set COMMITTER_TOKEN or GITHUB_TOKEN environment variables.'
+    )
+  }
+
+  if (authType !== 'user' && authType !== 'app') {
+    throw new Error(`Invalid auth-type: ${authType}. Must be 'user' or 'app'.`)
+  }
+
+  const apiClient = api(token)
   const options = await prepareEdit(
     context,
-    api(internalToken),
-    api(externalToken)
+    apiClient,
+    apiClient,
+    authType as 'user' | 'app'
   )
   const createdUrl = await editGitHubBlob(options)
   console.log(createdUrl)
@@ -73,7 +89,8 @@ type Context = {
 export async function prepareEdit(
   ctx: Context,
   sameRepoClient: API,
-  crossRepoClient: API
+  crossRepoClient: API,
+  authType: 'user' | 'app'
 ): Promise<EditOptions> {
   const tagName =
     getInput('tag-name') ||
@@ -157,6 +174,7 @@ export async function prepareEdit(
 
   return {
     apiClient: crossRepoClient,
+    authType,
     owner,
     repo,
     branch,
