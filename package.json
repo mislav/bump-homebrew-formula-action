@@ -7,11 +7,11 @@
     "test": "tsc --sourceMap && ava"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^2.0.1",
     "@actions/github": "^6.0.1",
-    "@octokit/core": "^7.0.5",
+    "@octokit/core": "^7.0.6",
     "@octokit/plugin-request-log": "^6.0.0",
-    "@octokit/plugin-rest-endpoint-methods": "^16.1.1"
+    "@octokit/plugin-rest-endpoint-methods": "^17.0.0"
   },
   "devDependencies": {
     "@ava/typescript": "^6.0.0",
