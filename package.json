@@ -14,7 +14,7 @@
     "@octokit/plugin-rest-endpoint-methods": "^17.0.0"
   },
   "devDependencies": {
-    "@ava/typescript": "^6.0.0",
+    "@ava/typescript": "^7.0.0",
     "@eslint/js": "^10.0.1",
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "^25.6.0",
