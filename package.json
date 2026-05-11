@@ -22,7 +22,7 @@
     "ava": "^7.0.0",
     "eslint": "^10.3.0",
     "typescript": "5.9.x",
-    "typescript-eslint": "^8.59.1"
+    "typescript-eslint": "^8.59.2"
   },
   "prettier": {
     "trailingComma": "es5",
