@@ -3,6 +3,7 @@ import { URL } from 'url'
 import {
   parseArchiveUrl,
   parseReleaseDownloadUrl,
+  resolveRedirect,
 } from './calculate-download-checksum.js'
 import stream from './calculate-download-checksum.js'
 import { createServer } from 'http'
@@ -83,6 +84,41 @@ test('calculate-download-checksum parseReleaseDownloadUrl', (t) => {
     t.is(tt.wants.tagname, asset.tagname)
     t.is(tt.wants.name, asset.name)
   })
+})
+
+test('calculate-download-checksum resolveRedirect follows HTTP 303', async (t) => {
+  // GitHub's tarball API responds to HEAD requests with HTTP 303
+  const server = createServer((req, res) => {
+    if (req.method == 'HEAD' && req.url == '/tarball') {
+      res.writeHead(303, { location: 'https://codeload.example.com/tar.gz' })
+      res.end()
+    } else {
+      res.writeHead(404)
+      res.end()
+    }
+  })
+
+  await new Promise<void>((resolve) => server.listen(0, resolve))
+  const address = server.address()
+  if (typeof address !== 'object' || address == null) {
+    t.fail('Could not get server address')
+    return
+  }
+
+  const apiClient = api('ATOKEN')
+  const url = await resolveRedirect(
+    apiClient,
+    new URL(`http://localhost:${address.port}/tarball`),
+    false
+  )
+  t.is(url.href, 'https://codeload.example.com/tar.gz')
+
+  t.teardown(
+    () =>
+      new Promise<void>((resolve) => {
+        server.close(() => resolve())
+      })
+  )
 })
 
 test('calculate-download-checksum stream', async (t) => {
