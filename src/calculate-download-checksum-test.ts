@@ -92,6 +92,9 @@ test('calculate-download-checksum resolveRedirect follows HTTP 303', async (t) =
     if (req.method == 'HEAD' && req.url == '/tarball') {
       res.writeHead(303, { location: 'https://codeload.example.com/tar.gz' })
       res.end()
+    } else if (req.method == 'HEAD' && req.url == '/tarball-relative') {
+      res.writeHead(303, { location: '/download/tar.gz' })
+      res.end()
     } else {
       res.writeHead(404)
       res.end()
@@ -99,6 +102,12 @@ test('calculate-download-checksum resolveRedirect follows HTTP 303', async (t) =
   })
 
   await new Promise<void>((resolve) => server.listen(0, resolve))
+  t.teardown(
+    () =>
+      new Promise<void>((resolve) => {
+        server.close(() => resolve())
+      })
+  )
   const address = server.address()
   if (typeof address !== 'object' || address == null) {
     t.fail('Could not get server address')
@@ -113,11 +122,14 @@ test('calculate-download-checksum resolveRedirect follows HTTP 303', async (t) =
   )
   t.is(url.href, 'https://codeload.example.com/tar.gz')
 
-  t.teardown(
-    () =>
-      new Promise<void>((resolve) => {
-        server.close(() => resolve())
-      })
+  const relativeUrl = await resolveRedirect(
+    apiClient,
+    new URL(`http://localhost:${address.port}/tarball-relative`),
+    false
+  )
+  t.is(
+    relativeUrl.href,
+    `http://localhost:${address.port}/download/tar.gz`
   )
 })
 

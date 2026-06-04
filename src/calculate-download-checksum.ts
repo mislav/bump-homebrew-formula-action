@@ -38,6 +38,7 @@ type authInfo = {
   token: string
 }
 
+// Exported for tests.
 export async function resolveRedirect(
   apiClient: API,
   url: URL,
@@ -60,7 +61,8 @@ export async function resolveRedirect(
         if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
           const loc = res.headers['location']
           if (loc != null) {
-            resolve(new URL(loc))
+            // the base URL handles relative Location values
+            resolve(new URL(loc, url))
           } else {
             reject(
               new Error(`got HTTP ${res.statusCode} but no Location header`)
