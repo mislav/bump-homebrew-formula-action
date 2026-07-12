@@ -2,8 +2,8 @@ import type { API } from './api.js'
 import { debug } from '@actions/core'
 import { URL } from 'url'
 import { createHash } from 'crypto'
-import { get as HTTP } from 'http'
-import { get as HTTPS, request } from 'https'
+import { get as HTTP, request as requestHTTP } from 'http'
+import { get as HTTPS, request as requestHTTPS } from 'https'
 
 interface Headers {
   [name: string]: string
@@ -38,14 +38,15 @@ type authInfo = {
   token: string
 }
 
-async function resolveRedirect(
+// Exported for tests.
+export async function resolveRedirect(
   apiClient: API,
   url: URL,
   asBinary: boolean
 ): Promise<URL> {
   const authInfo = (await apiClient.auth()) as authInfo
   return new Promise((resolve, reject) => {
-    const req = request(
+    const req = (url.protocol == 'https:' ? requestHTTPS : requestHTTP)(
       url,
       {
         method: 'HEAD',
@@ -57,10 +58,11 @@ async function resolveRedirect(
       },
       (res) => {
         res.resume() // ensure the response body has been fully read
-        if (res.statusCode == 302) {
+        if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400) {
           const loc = res.headers['location']
           if (loc != null) {
-            resolve(new URL(loc))
+            // the base URL handles relative Location values
+            resolve(new URL(loc, url))
           } else {
             reject(
               new Error(`got HTTP ${res.statusCode} but no Location header`)
