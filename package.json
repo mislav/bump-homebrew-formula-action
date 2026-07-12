@@ -7,22 +7,22 @@
     "test": "tsc --sourceMap && ava"
   },
   "dependencies": {
-    "@actions/core": "^2.0.2",
-    "@actions/github": "^9.0.0",
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
     "@octokit/core": "^7.0.6",
     "@octokit/plugin-request-log": "^6.0.0",
     "@octokit/plugin-rest-endpoint-methods": "^17.0.0"
   },
   "devDependencies": {
-    "@ava/typescript": "^6.0.0",
+    "@ava/typescript": "^7.0.0",
     "@eslint/js": "^10.0.1",
     "@tsconfig/node24": "^24.0.4",
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.6.2",
     "@vercel/ncc": "^0.38.4",
-    "ava": "^6.4.1",
-    "eslint": "^10.0.0",
-    "typescript": "5.9.x",
-    "typescript-eslint": "^8.54.0"
+    "ava": "^8.0.0",
+    "eslint": "^10.3.0",
+    "typescript": "6.0.x",
+    "typescript-eslint": "^8.59.1"
   },
   "prettier": {
     "trailingComma": "es5",
