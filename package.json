@@ -20,9 +20,9 @@
     "@types/node": "^25.6.2",
     "@vercel/ncc": "^0.38.4",
     "ava": "^8.0.0",
-    "eslint": "^10.3.0",
+    "eslint": "^10.7.0",
     "typescript": "6.0.x",
-    "typescript-eslint": "^8.59.1"
+    "typescript-eslint": "^8.63.0"
   },
   "prettier": {
     "trailingComma": "es5",
